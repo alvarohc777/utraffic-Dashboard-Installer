@@ -89,8 +89,8 @@ procedure InitializeWizard();
 var
   AfterId: Integer;
 begin
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de SolicitudesApp';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ SolicitudesApp en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   AfterId := wpInfoBefore;
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para Solicitudes App.');
@@ -157,7 +157,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
