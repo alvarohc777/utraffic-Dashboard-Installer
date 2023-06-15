@@ -15,6 +15,7 @@
 #define AfterInstallFile "AfterInstall.txt"
 #define LicenseFile "License.txt"
 #define public Dependency_NoExampleSetup
+#define MyService "Solicitudes"
 
 #define AppId "{{4372BD00-1EC0-4F22-9F87-5436E942D980}"
 
@@ -165,3 +166,5 @@ Source: {#PostgreExeName}; Flags: dontcopy noencryption
 [Icons]
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
+
+Filename: {sys}\sc.exe; Parameters: "start ""{#MyService}""" ; Flags: runhidden
