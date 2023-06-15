@@ -15,9 +15,12 @@
 #define AfterInstallFile "AfterInstall.txt"
 #define LicenseFile "License.txt"
 #define public Dependency_NoExampleSetup
+#define Password "utraffic"
+
 #define MyService "Solicitudes"
 
 #define AppId "{{4372BD00-1EC0-4F22-9F87-5436E942D980}"
+
 
 [Setup]
 AppId = {#AppId}
@@ -37,6 +40,7 @@ WizardImageFile = {#AuxDataFolder}upscaledvertical.bmp
 WizardSmallImageFile = {#AuxDataFolder}upscaledsmall.bmp
 SetupIconFile = {#AuxDataFolder}Utraffic.ico
 
+Password={#Password}
 
 Compression=lzma
 SolidCompression=yes
