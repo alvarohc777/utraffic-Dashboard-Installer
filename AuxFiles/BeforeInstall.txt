@@ -1,2 +1,1 @@
-Esta es información Importante.
-Se mostrará antes de la instalación.
+Important information that will be shown before the installation.
