@@ -5,8 +5,11 @@
 #define PublishFolder "C:\Users\Administrador\Documents\utraffic\C#\Solicitudes\bin\Debug\net6.0\win-x64\publish\*"
 #define InstallationDir "C:\Solicitudes\"
 #define InstallerName "Instalador Solicitudes Backend"
-#define DotnetExeName "dotnet60_x64.exe"
+#define DependenciesDir "Dependencies\"
+#define DotnetExeName  "dotnet60_x64.exe"
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
+#define NodeExeName "node-v18.16.0-x86.msi"
+#define NIDAQzip "NIDAQ930f2.zip"
 
 
 
@@ -57,7 +60,7 @@ var
   OutputProgressWizardPage: TOutputProgressWizardPage;
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
-  InstallCMDParams: String;
+  
 
 function InitializeSetup(): Boolean;
 begin
@@ -166,6 +169,9 @@ Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 [Files]
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
+Source: {#DependenciesDir}{#DotnetExeName}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#PostgreExeName}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
