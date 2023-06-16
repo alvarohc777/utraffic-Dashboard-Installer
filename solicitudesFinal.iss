@@ -81,7 +81,7 @@ var
 begin
 
   
-  if Exec(ExpandConstant('{tmp}\')+DependencyExe,Params,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
+  if Exec(DependencyExe,Params,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 1 then
         Result:=True
@@ -94,10 +94,10 @@ procedure InitializeWizard();
 var
   AfterId: Integer;
 begin
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de SolicitudesApp';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ SolicitudesApp en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   AfterId := wpInfoBefore;
-  OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL');
+  OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL, NodeJs');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para Solicitudes App.');
   OutputMarqueeProgressWizardPageId := AfterId;
 
@@ -106,6 +106,8 @@ end;
 function NextButtonClick(CurPageId: Integer): Boolean;
 var 
   I, Max: Integer;
+  InstallCMDParams: String;
+  InstallCMDExe: String;
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
@@ -113,7 +115,7 @@ begin
 
 
      try
-        Max := 5;
+        Max := 7;
         I := 1;
         
         OutputProgressWizardPage.SetProgress(I, Max);
@@ -130,6 +132,11 @@ begin
         ExtractTemporaryFile('{#PostgreExeName}');
         OutputProgressWizardPage.SetProgress(I, Max);
 
+        I := 7;
+        OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
+        ExtractTemporaryFile('{#NodeExeName}');
+        OutputProgressWizardPage.SetProgress(I, Max);
+
      finally
       OutputProgressWizardPage.Hide;
      end;
@@ -138,14 +145,22 @@ begin
       OutputMarqueeProgressWizardPage.Show;
        
            OutputMarqueeProgressWizardPage.Animate;
-           InstallCMDParams := '/install /quiet /norestart';
+
+           InstallCMDParams := '/install /passive /norestart';
+           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}'
            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet6.0';
-           Result := InstallDependency('{#DotNetExeName}', InstallCMDParams);
+           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
            
            InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "herrada2022" --servicename "postgreSQL" --servicepassword "herrada2022" --serverport 5432  --disable-components pgAdmin,stackbuilder';
+           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}'
            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
-           Result := InstallDependency('{#PostgreExeName}', InstallCMDParams);
+           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+           InstallCMDParams := '/i '+ ExpandConstant('{tmp}\{#NodeExeName}')+' /passive';
+           InstallCMDExe := 'msiexec.exe' 
+           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
+           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
          
      finally
        OutputMarqueeProgressWizardPage.Hide;
@@ -162,7 +177,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
