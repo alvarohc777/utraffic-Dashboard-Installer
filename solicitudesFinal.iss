@@ -9,7 +9,9 @@
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
 
 
-#define AuxDataFolder "AuxFiles\"
+
+#define AuxDataDir "AuxFiles\"
+
 #define AppIcon "Utraffic.ico"
 #define BeforeInstallFile "BeforeInstall.txt"
 #define AfterInstallFile "AfterInstall.txt"
@@ -33,12 +35,12 @@ DisableProgramGroupPage=yes
 OutputBaseFilename={#InstallerName}
 DisableWelcomePage=no
 
-LicenseFile={#AuxDataFolder}{#LicenseFile}
-;InfoBeforeFile={#AuxDataFolder}{#BeforeInstallFile}
-;InfoAfterFile ={#AuxDataFolder}{#AfterInstallFile}
-WizardImageFile = {#AuxDataFolder}upscaledvertical.bmp
-WizardSmallImageFile = {#AuxDataFolder}upscaledsmall.bmp
-SetupIconFile = {#AuxDataFolder}Utraffic.ico
+LicenseFile={#AuxDataDir}{#LicenseFile}
+;InfoBeforeFile={#AuxDataDir}{#BeforeInstallFile}
+;InfoAfterFile ={#AuxDataDir}{#AfterInstallFile}
+WizardImageFile = {#AuxDataDir}upscaledvertical.bmp
+WizardSmallImageFile = {#AuxDataDir}upscaledsmall.bmp
+SetupIconFile = {#AuxDataDir}Utraffic.ico
 
 Password={#Password}
 
@@ -89,8 +91,8 @@ procedure InitializeWizard();
 var
   AfterId: Integer;
 begin
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de SolicitudesApp';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ SolicitudesApp en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
   AfterId := wpInfoBefore;
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para Solicitudes App.');
@@ -152,20 +154,18 @@ end;
 
 [Languages]
 
-Name: "Eng"; MessagesFile: "compiler:Default.isl"; InfoBeforeFile:"{#AuxDataFolder}\BeforeInstall.txt"; InfoAfterFile:"{#AuxDataFolder}\AfterInstall.txt"; LicenseFile:"{#AuxDataFolder}\License.txt"
-Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#AuxDataFolder}\BeforeInstall-Spanish.txt"; InfoAfterFile:"{#AuxDataFolder}\AfterInstall-Spanish.txt"; LicenseFile:"{#AuxDataFolder}\License-Spanish.txt"
+Name: "Eng"; MessagesFile: "compiler:Default.isl"; InfoBeforeFile:"{#AuxDataDir}\BeforeInstall.txt"; InfoAfterFile:"{#AuxDataDir}\AfterInstall.txt"; LicenseFile:"{#AuxDataDir}\License.txt"
+Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#AuxDataDir}\BeforeInstall-Spanish.txt"; InfoAfterFile:"{#AuxDataDir}\AfterInstall-Spanish.txt"; LicenseFile:"{#AuxDataDir}\License-Spanish.txt"
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
 [Files]
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
-Source: {#AuxDataFolder}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
-Source: {#DotnetExeName}; Flags: dontcopy noencryption
-Source: {#PostgreExeName}; Flags: dontcopy noencryption
+Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 
 [Icons]
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
