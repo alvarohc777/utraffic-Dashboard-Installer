@@ -1,6 +1,7 @@
 #define MyAppName "UToll Pista"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
+;#define PublishFolder "C:\Users\Administrador\Documents\utraffic\C#\Solicitudes\bin\Debug\net6.0\win-x64\publish\*"
 #define InstallationDir "C:\UTollPista\"
 #define InstallerName "UToll Pista Installer"
 
@@ -191,16 +192,16 @@ Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 
-[Run]
-Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "create ""{#MyService}"" start= auto binPath= ""{app}\{#MyAppExeName}"""; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "start ""{#MyService}""" ; Flags: runhidden
+;[Run]
+;Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
+;Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden
+;Filename: {sys}\sc.exe; Parameters: "create ""{#MyService}"" start= auto binPath= ""{app}\{#MyAppExeName}"""; Flags: runhidden
+;Filename: {sys}\sc.exe; Parameters: "start ""{#MyService}""" ; Flags: runhidden
 
-[UninstallRun]
-Filename: "{cmd}"; Parameters: "/C ""taskkill /im {#MyAppExeName} /f /t"
-Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}""" ; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden 
+;[UninstallRun]
+;Filename: "{cmd}"; Parameters: "/C ""taskkill /im {#MyAppExeName} /f /t"
+;Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}""" ; Flags: runhidden
+;Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden 
 
 
 
