@@ -11,6 +11,8 @@
 #define InstallerName "UToll Pista Installer"
 
 #define DependenciesDir "Dependencies\"
+#define VCRedisX64ExeName "VC_redist.x64.exe"
+#define VCRedisX86ExeName "VC_redist.x86.exe"
 #define DotnetExeName  "dotnet60_x64.exe"
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
 #define NodeExeName "node-v18.16.0-x86.msi"
@@ -120,13 +122,23 @@ begin
 
 
      try
-        Max := 7;
+        Max := 6;
+
         I := 1;
         
         OutputProgressWizardPage.SetProgress(I, Max);
         OutputProgressWizardPage.Show;
 
+        I := 2;
+        OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x64 2015-2022';
+        ExtractTemporaryFile('{#VCRedisX64ExeName}');
+        OutputProgressWizardPage.SetProgress(I, Max);
         I := 3;
+        OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x86 2015-2022';
+        ExtractTemporaryFile('{#VCRedisX86ExeName}');
+        OutputProgressWizardPage.SetProgress(I, Max);
+
+        I := 4;
 
         OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
         ExtractTemporaryFile('{#DotNetExeName}');
@@ -150,6 +162,16 @@ begin
       OutputMarqueeProgressWizardPage.Show;
        
            OutputMarqueeProgressWizardPage.Animate;
+
+           InstallCMDParams := '/i ' + ExpandConstant('{tmp}\{#VCRedisX64ExeName}')+' /passive';
+           InstallCMDExe := 'msiexec.exe';
+           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x64 2015-2022';
+           Result := InstallDependency(InstallCMDExe, InstallCMDParams); 
+
+           InstallCMDParams := '/i ' + ExpandConstant('{tmp}\{#VCRedisX86ExeName}')+' /passive';
+           InstallCMDExe := 'msiexec.exe';
+           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x86 2015-2022';
+           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
            InstallCMDParams := '/install /passive /norestart';
            InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}'
@@ -192,6 +214,8 @@ Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 Source: {#DependenciesDir}{#DotnetExeName}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#PostgreExeName}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#VCRedisX64ExeName}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#VCRedisX86ExeName}; Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
