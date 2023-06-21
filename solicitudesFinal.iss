@@ -1,7 +1,12 @@
 #define MyAppName "UToll Pista"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
+
+#define UTollVisorExeName "UToll Pista.exe"     ; Frontend Executable
+#define UTollVisorDir "\UToll-Pista-win32-x64\" ; Frontend App Directory
+
 ;#define PublishFolder "C:\Users\Administrador\Documents\utraffic\C#\Solicitudes\bin\Debug\net6.0\win-x64\publish\*"
+#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
 #define InstallationDir "C:\UTollPista\"
 #define InstallerName "UToll Pista Installer"
 
@@ -189,8 +194,8 @@ Source: {#DependenciesDir}{#PostgreExeName}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 
 [Icons]
-Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
-Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UtollVisorDir}{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 
 ;[Run]
 ;Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
