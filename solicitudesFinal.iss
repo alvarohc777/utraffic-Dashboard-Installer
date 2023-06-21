@@ -101,8 +101,10 @@ procedure InitializeWizard();
 var
   AfterId: Integer;
 begin
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de SolicitudesApp';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ SolicitudesApp en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  WizardForm.LicenseAcceptedRadio.Checked := True;
+  WizardForm.PasswordEdit.Text := '{#Password}';
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   AfterId := wpInfoBefore;
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL, NodeJs');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para Solicitudes App.');
@@ -149,7 +151,7 @@ begin
         ExtractTemporaryFile('{#PostgreExeName}');
         OutputProgressWizardPage.SetProgress(I, Max);
 
-        I := 7;
+        I := 6;
         OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
         ExtractTemporaryFile('{#NodeExeName}');
         OutputProgressWizardPage.SetProgress(I, Max);
@@ -174,18 +176,17 @@ begin
            Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
            InstallCMDParams := '/install /passive /norestart';
-           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}'
+           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet6.0';
            Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-           
            InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "herrada2022" --servicename "postgreSQL" --servicepassword "herrada2022" --serverport 5432  --disable-components pgAdmin,stackbuilder';
-           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}'
+           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
            Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
            InstallCMDParams := '/i '+ ExpandConstant('{tmp}\{#NodeExeName}')+' /passive';
-           InstallCMDExe := 'msiexec.exe' 
+           InstallCMDExe := 'msiexec.exe'; 
            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
            Result := InstallDependency(InstallCMDExe, InstallCMDParams);
          
@@ -204,7 +205,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
