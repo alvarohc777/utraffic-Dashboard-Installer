@@ -208,8 +208,21 @@ begin
           MsgBox('Restart the installer now', mbInformation, MB_OK);
           Exec('cmd.exe', '/c setx {#RestartEnvVar} "True" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
           ExitProcess(1);
+        end
+        else begin
           MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
+
+          InstallCMDParams := '/c echo This is a batch script. & "C:\Program Files (x86)\nodejs\npm" install -g pm2 & pause';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando pm2';
+          Result := ShellExec('', 'cmd.exe', installCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+
           Exec('cmd.exe', '/c setx {#RestartEnvVar} "" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        end;   
+     finally
+       OutputMarqueeProgressWizardPage.Hide;
+     end;
+   end;
+
    if CurPageId = wpInfoAfter then
    begin
      try
