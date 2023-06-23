@@ -2,7 +2,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 #define MyAppExeName "Solicitudes.exe"
-#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\TestFiles\*"
+#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\server\*"
 #define InstallationDir "C:\Solicitudes\"
 #define InstallerName "Instalador Solicitudes Backend"
 #define DependenciesDir "Dependencies\"
@@ -95,8 +95,8 @@ var
 begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de SolicitudesApp';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ SolicitudesApp en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
   AfterId := wpInfoBefore;
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL, NodeJs');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para Solicitudes App.');
@@ -163,9 +163,21 @@ begin
        OutputMarqueeProgressWizardPage.Hide;
      end;
    end;
+   if CurPageId = wpInfoAfter then
+   begin
+     try
+       Max := 50;
+       OutputMarqueeProgressWizardPage.Show;
+       OutputMarqueeProgressWizardPage.Animate;
+       InstallCMDParams := '/c cd {#InstallationDir}{#MyAppName} & npm install & pause & pm2 start {#InstallationDir}{#MyAppName}\server.js & pause ';
+       OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio';
+       Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+     finally
+       OutputMarqueeProgressWizardPage.Hide;
+     end;
+   end;
    Result := true;
 end;
-
 
 [Languages]
 
@@ -174,7 +186,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
@@ -187,7 +199,7 @@ Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 
-; [Run]
+[Run]
 ; Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
 ; Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden
 ; Filename: {sys}\sc.exe; Parameters: "create ""{#MyService}"" start= auto binPath= ""{app}\{#MyAppExeName}"""; Flags: runhidden
