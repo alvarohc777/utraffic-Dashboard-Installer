@@ -2,7 +2,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 #define MyAppExeName "Solicitudes.exe"
-#define PublishFolder "C:\Users\Administrador\Documents\utraffic\C#\Solicitudes\bin\Debug\net6.0\win-x64\publish\*"
+#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\TestFiles\*"
 #define InstallationDir "C:\Solicitudes\"
 #define InstallerName "Instalador Solicitudes Backend"
 #define DependenciesDir "Dependencies\"
@@ -11,7 +11,7 @@
 #define NodeExeName "node-v18.16.0-x86.msi"
 #define NIDAQzip "NIDAQ930f2.zip"
 
-
+#define RestartEnvVar "RestartInstaller"
 
 #define AuxDataDir "AuxFiles\"
 
@@ -61,26 +61,25 @@ var
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
   InstallCMDParams: String;
+  Restarted: Boolean;
 
 function InitializeSetup(): Boolean;
 begin
+  if (GetEnv('{#RestartEnvVar}') <> '') then
+    begin
+      Restarted := true
+    end 
+    else begin
+      Restarted  := false;
+    end;
   Result := True;
-  if RegKeyExists(HKEY_LOCAL_MACHINE,
-       'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#AppId}_is1') or
-     RegKeyExists(HKEY_CURRENT_USER,
-       'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#AppId}_is1') then
-  begin
-    MsgBox('The application is installed already.', mbInformation, MB_OK);
-    Result := False;
-  end;
+  
 end;  
 
 function InstallDependency(DependencyExe: String; Params: String): Boolean;
 var 
   ResultCode: Integer;
 begin
-
-  
   if Exec(ExpandConstant('{tmp}\')+DependencyExe,Params,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 1 then
@@ -94,6 +93,8 @@ procedure InitializeWizard();
 var
   AfterId: Integer;
 begin
+  WizardForm.LicenseAcceptedRadio.Checked := True;
+  WizardForm.PasswordEdit.Text := '{#Password}';
   WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
   WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   AfterId := wpInfoBefore;
@@ -102,6 +103,8 @@ begin
   OutputMarqueeProgressWizardPageId := AfterId;
 
 end;
+procedure ExitProcess(uExitCode: Integer);
+  external 'ExitProcess@kernel32.dll stdcall';
 
 function NextButtonClick(CurPageId: Integer): Boolean;
 var 
@@ -110,7 +113,7 @@ var
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
-;          MsgBox('Entro a instalarse', mbInformation, MB_OK);
+// ;          MsgBox('Entro a instalarse', mbInformation, MB_OK);
 
 
      try
@@ -133,20 +136,34 @@ begin
      try 
       Max := 50;
       OutputMarqueeProgressWizardPage.Show;
-       
-           OutputMarqueeProgressWizardPage.Animate;
-           InstallCMDParams := '';
-           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
-           
-           Result := Exec('msiexec.exe','/i ' + ExpandConstant('{tmp}\{#NodeExeName}')+' /passive', '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
-           
-           
-         
+      OutputMarqueeProgressWizardPage.Animate;
+      if not Restarted then
+        begin
+          
+          MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
+
+          InstallCMDParams := '';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
+          Result := Exec('msiexec.exe','/i ' + ExpandConstant('{tmp}\{#NodeExeName}')+' /passive', '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+          MsgBox('Restart the installer now', mbInformation, MB_OK);
+          Exec('cmd.exe', '/c setx {#RestartEnvVar} "True" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          ExitProcess(1);
+        end
+        else begin
+          MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
+
+          InstallCMDParams := '/c npm install -g pm2 & pm2 & pause';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
+          Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+
+          Exec('cmd.exe', '/c setx {#RestartEnvVar} "" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+        end;         
      finally
        OutputMarqueeProgressWizardPage.Hide;
      end;
    end;
-  Result := True;
+   Result := true;
 end;
 
 
@@ -170,16 +187,16 @@ Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
 
-[Run]
-Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "create ""{#MyService}"" start= auto binPath= ""{app}\{#MyAppExeName}"""; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "start ""{#MyService}""" ; Flags: runhidden
+; [Run]
+; Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
+; Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden
+; Filename: {sys}\sc.exe; Parameters: "create ""{#MyService}"" start= auto binPath= ""{app}\{#MyAppExeName}"""; Flags: runhidden
+; Filename: {sys}\sc.exe; Parameters: "start ""{#MyService}""" ; Flags: runhidden
 
-[UninstallRun]
-Filename: "{cmd}"; Parameters: "/C ""taskkill /im {#MyAppExeName} /f /t"
-Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}""" ; Flags: runhidden
-Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden 
+; [UninstallRun]
+; Filename: "{cmd}"; Parameters: "/C ""taskkill /im {#MyAppExeName} /f /t"
+; Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}""" ; Flags: runhidden
+; Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden 
 
 
 
