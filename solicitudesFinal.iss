@@ -18,7 +18,7 @@
 #define NodeExeName "node-v18.16.0-x86.msi"
 #define NIDAQzip "NIDAQ930f2.zip"
 
-
+#define RestartEnvVar "RestartInstaller"
 
 #define AuxDataDir "AuxFiles\"
 
@@ -63,24 +63,17 @@ PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
 
 [Code]
+
+
+
 var
   OutputProgressWizardPage: TOutputProgressWizardPage;
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
+  Restarted: Boolean;
   
-
-function InitializeSetup(): Boolean;
-begin
-  Result := True;
-  if RegKeyExists(HKEY_LOCAL_MACHINE,
-       'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#AppId}_is1') or
-     RegKeyExists(HKEY_CURRENT_USER,
-       'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#AppId}_is1') then
-  begin
-    MsgBox('The application is installed already.', mbInformation, MB_OK);
-    Result := False;
-  end;
-end;  
+procedure ExitProcess(uExitCode: Integer);
+  external 'ExitProcess@kernel32.dll stdcall';
 
 function InstallDependency(DependencyExe: String; Params: String): Boolean;
 var 
@@ -97,18 +90,29 @@ begin
     end;
 end;
   
+function InitializeSetup(): Boolean;
+begin
+  if (GetEnv('{#RestartEnvVar}') <> '') then
+    begin
+      Restarted := true
+    end 
+    else begin
+      Restarted  := false;
+    end;
+  Result := True;
+end;
+  
 procedure InitializeWizard();
 var
   AfterId: Integer;
 begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de SolicitudesApp';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará SolicitudesApp en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
-  AfterId := wpInfoBefore;
-  OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'Dotnet, PostgreSQL, NodeJs');
-  OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para Solicitudes App.');
-  OutputMarqueeProgressWizardPageId := AfterId;
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, Dotnet, PostgreSQL, NodeJs');
+  OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
+  OutputMarqueeProgressWizardPageId := wpInfoBefore;
 
 end;
 
@@ -117,12 +121,16 @@ var
   I, Max: Integer;
   InstallCMDParams: String;
   InstallCMDExe: String;
+  ResultCode: Integer;
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
-;          MsgBox('Entro a instalarse', mbInformation, MB_OK);
+// ;          MsgBox('Entro a instalarse', mbInformation, MB_OK);
+     
 
 
+      if not Restarted then
+      begin
      try
         Max := 6;
 
@@ -131,14 +139,14 @@ begin
         OutputProgressWizardPage.SetProgress(I, Max);
         OutputProgressWizardPage.Show;
 
-        I := 2;
-        OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x64 2015-2022';
-        ExtractTemporaryFile('{#VCRedisX64ExeName}');
-        OutputProgressWizardPage.SetProgress(I, Max);
-        I := 3;
-        OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x86 2015-2022';
-        ExtractTemporaryFile('{#VCRedisX86ExeName}');
-        OutputProgressWizardPage.SetProgress(I, Max);
+//           I := 2;
+//           OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x64 2015-2022';
+//           ExtractTemporaryFile('{#VCRedisX64ExeName}');
+//           OutputProgressWizardPage.SetProgress(I, Max);
+//           I := 3;
+//           OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x86 2015-2022';
+//           ExtractTemporaryFile('{#VCRedisX86ExeName}');
+//           OutputProgressWizardPage.SetProgress(I, Max);
 
         I := 4;
 
@@ -159,21 +167,28 @@ begin
      finally
       OutputProgressWizardPage.Hide;
      end;
+      end;
+        
+
+     
      try 
       Max := 50;
       OutputMarqueeProgressWizardPage.Show;
        
            OutputMarqueeProgressWizardPage.Animate;
+      if not Restarted then
+        begin
+          MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
 
-           InstallCMDParams := '/i ' + ExpandConstant('{tmp}\{#VCRedisX64ExeName}')+' /passive';
-           InstallCMDExe := 'msiexec.exe';
-           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x64 2015-2022';
-           Result := InstallDependency(InstallCMDExe, InstallCMDParams); 
+//           InstallCMDParams := '/c ' + ExpandConstant('{tmp}\{#VCRedisX64ExeName}')+' /passive';
+//           InstallCMDExe := 'cmd.exe';
+//           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x64 2015-2022';
+//           Result := InstallDependency(InstallCMDExe, InstallCMDParams); 
 
-           InstallCMDParams := '/i ' + ExpandConstant('{tmp}\{#VCRedisX86ExeName}')+' /passive';
-           InstallCMDExe := 'msiexec.exe';
-           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x86 2015-2022';
-           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+//           InstallCMDParams := '/c ' + ExpandConstant('{tmp}\{#VCRedisX86ExeName}')+' /passive';
+//           InstallCMDExe := 'cmd.exe';
+//           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x86 2015-2022';
+//           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
            InstallCMDParams := '/install /passive /norestart';
            InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
@@ -190,10 +205,26 @@ begin
            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
            Result := InstallDependency(InstallCMDExe, InstallCMDParams);
          
+          MsgBox('Restart the installer now', mbInformation, MB_OK);
+          Exec('cmd.exe', '/c setx {#RestartEnvVar} "True" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          ExitProcess(1);
+          MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
+          Exec('cmd.exe', '/c setx {#RestartEnvVar} "" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+   if CurPageId = wpInfoAfter then
+   begin
+     try
+       Max := 50;
+       OutputMarqueeProgressWizardPage.Show;
+       OutputMarqueeProgressWizardPage.Animate;
+       InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pause ';
+//        InstallCMDParams := '/c cd "{#InstallationDir}{#MyAppName}\server\" & npm install & pause & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pause ';
+       OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
+       Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
      finally
        OutputMarqueeProgressWizardPage.Hide;
      end;
    end;
+
   Result := True;
 end;
 
@@ -205,7 +236,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
@@ -215,8 +246,8 @@ Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 Source: {#DependenciesDir}{#DotnetExeName}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#PostgreExeName}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#VCRedisX64ExeName}; Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#VCRedisX86ExeName}; Flags: dontcopy noencryption
+; Source: {#DependenciesDir}{#VCRedisX64ExeName}; Flags: dontcopy noencryption
+; Source: {#DependenciesDir}{#VCRedisX86ExeName}; Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
