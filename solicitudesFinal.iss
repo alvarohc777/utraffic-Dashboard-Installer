@@ -71,7 +71,7 @@ var
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
   Restarted: Boolean;
-  
+
 procedure ExitProcess(uExitCode: Integer);
   external 'ExitProcess@kernel32.dll stdcall';
 
@@ -89,7 +89,7 @@ begin
         Result:=false;
     end;
 end;
-  
+
 function InitializeSetup(): Boolean;
 begin
   if (GetEnv('{#RestartEnvVar}') <> '') then
@@ -108,8 +108,8 @@ var
 begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, Dotnet, PostgreSQL, NodeJs');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
@@ -127,17 +127,16 @@ begin
     begin
 // ;          MsgBox('Entro a instalarse', mbInformation, MB_OK);
      
-
+        
 
       if not Restarted then
       begin
-     try
-        Max := 6;
+        try
+          Max := 6;
 
-        I := 1;
-        
-        OutputProgressWizardPage.SetProgress(I, Max);
-        OutputProgressWizardPage.Show;
+          I := 1;
+          OutputProgressWizardPage.SetProgress(I, Max);
+          OutputProgressWizardPage.Show;
 
 //           I := 2;
 //           OutputProgressWizardPage.Msg2Label.Caption := 'Exctracting Microsoft Visual C++ Redistributable x64 2015-2022';
@@ -148,34 +147,33 @@ begin
 //           ExtractTemporaryFile('{#VCRedisX86ExeName}');
 //           OutputProgressWizardPage.SetProgress(I, Max);
 
-        I := 4;
+          I := 4;
 
-        OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
-        ExtractTemporaryFile('{#DotNetExeName}');
-        OutputProgressWizardPage.SetProgress(I, Max);
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
+          ExtractTemporaryFile('{#DotNetExeName}');
+          OutputProgressWizardPage.SetProgress(I, Max);
 
-        I := 5;
-        OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PostgreSQL';
-        ExtractTemporaryFile('{#PostgreExeName}');
-        OutputProgressWizardPage.SetProgress(I, Max);
+          I := 5;
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PostgreSQL';
+          ExtractTemporaryFile('{#PostgreExeName}');
+          OutputProgressWizardPage.SetProgress(I, Max);
 
-        I := 6;
-        OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
-        ExtractTemporaryFile('{#NodeExeName}');
-        OutputProgressWizardPage.SetProgress(I, Max);
-
-     finally
-      OutputProgressWizardPage.Hide;
-     end;
+          I := 6;
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
+          ExtractTemporaryFile('{#NodeExeName}');
+          OutputProgressWizardPage.SetProgress(I, Max);
+        
+        finally
+          OutputProgressWizardPage.Hide;
+         end;
       end;
         
 
      
-     try 
+    try 
       Max := 50;
-      OutputMarqueeProgressWizardPage.Show;
-       
-           OutputMarqueeProgressWizardPage.Animate;
+      OutputMarqueeProgressWizardPage.Show; 
+      OutputMarqueeProgressWizardPage.Animate;
       if not Restarted then
         begin
           MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
@@ -190,21 +188,21 @@ begin
 //           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Microsoft Visual C++ Redistributable x86 2015-2022';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-           InstallCMDParams := '/install /passive /norestart';
-           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
-           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet6.0';
-           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          InstallCMDParams := '/install /passive /norestart';
+          InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet6.0';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-           InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "herrada2022" --servicename "postgreSQL" --servicepassword "herrada2022" --serverport 5432  --disable-components pgAdmin,stackbuilder';
-           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
-           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
-           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "herrada2022" --servicename "postgreSQL" --servicepassword "herrada2022" --serverport 5432  --disable-components pgAdmin,stackbuilder';
+          InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-           InstallCMDParams := '/i '+ ExpandConstant('{tmp}\{#NodeExeName}')+' /passive';
-           InstallCMDExe := 'msiexec.exe'; 
-           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
-           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-         
+          InstallCMDParams := '/i '+ ExpandConstant('{tmp}\{#NodeExeName}')+' /passive';
+          InstallCMDExe := 'msiexec.exe'; 
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          
           MsgBox('Restart the installer now', mbInformation, MB_OK);
           Exec('cmd.exe', '/c setx {#RestartEnvVar} "True" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
           ExitProcess(1);
@@ -236,7 +234,7 @@ begin
      finally
        OutputMarqueeProgressWizardPage.Hide;
      end;
-   end;
+   end; 
 
   Result := True;
 end;
@@ -249,7 +247,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
@@ -266,16 +264,7 @@ Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UtollVisorDir}{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 
-;[Run]
-;Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
-;Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden
-;Filename: {sys}\sc.exe; Parameters: "create ""{#MyService}"" start= auto binPath= ""{app}\{#MyAppExeName}"""; Flags: runhidden
-;Filename: {sys}\sc.exe; Parameters: "start ""{#MyService}""" ; Flags: runhidden
 
-;[UninstallRun]
-;Filename: "{cmd}"; Parameters: "/C ""taskkill /im {#MyAppExeName} /f /t"
-;Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}""" ; Flags: runhidden
-;Filename: {sys}\sc.exe; Parameters: "delete ""{#MyService}"""; Flags: runhidden 
 
 
 
