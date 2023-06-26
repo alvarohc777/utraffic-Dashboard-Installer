@@ -270,8 +270,8 @@ Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 ; Source: {#DependenciesDir}{#VCRedisX86ExeName}; Flags: dontcopy noencryption
 
 [Icons]
-Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
-Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UtollVisorDir}{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UtollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 
 
 
