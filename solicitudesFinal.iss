@@ -204,17 +204,21 @@ begin
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           
           MsgBox('Restart the installer now', mbInformation, MB_OK);
-          Exec('cmd.exe', '/c setx {#RestartEnvVar} "True" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M';
+          InstallCMDExe := 'cmd.exe';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           ExitProcess(1);
         end
         else begin
           MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
 
           InstallCMDParams := '/c echo This is a batch script. & "C:\Program Files (x86)\nodejs\npm" install -g pm2 & pause';
+          InstallCMDExe := 'cmd.exe';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando pm2';
-          Result := ShellExec('', 'cmd.exe', installCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-          Exec('cmd.exe', '/c setx {#RestartEnvVar} "" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+          
         end;   
      finally
        OutputMarqueeProgressWizardPage.Hide;
@@ -228,9 +232,14 @@ begin
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
        InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pause ';
+       InstallCMDExe := 'cmd.exe';
 //        InstallCMDParams := '/c cd "{#InstallationDir}{#MyAppName}\server\" & npm install & pause & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pause ';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
-       Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+       Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+       InstallCMDParams := '/c setx {#RestartEnvVar} "" /M';
+       InstallCMDExe := 'cmd.exe';
+       Result := InstallDependency(InstallCMDExe, InstallCMDParams);
      finally
        OutputMarqueeProgressWizardPage.Hide;
      end;
