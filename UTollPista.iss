@@ -26,6 +26,7 @@
 
 #define RestartEnvVar "RestartInstaller"
 
+; Auxiliary Files (Icons, Licenses, text files)
 #define AuxDataDir "AuxFiles\"
 
 #define AppIcon "Utraffic.ico"
@@ -85,7 +86,7 @@ var
 begin
 
   
-  if Exec(DependencyExe,Params,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
+  if Exec(DependencyExe,Params,'', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 1 then
         Result:=True
@@ -112,8 +113,8 @@ var
 begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, Dotnet, PostgreSQL, NodeJs');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
@@ -231,7 +232,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=Solicitudes-Eng
-Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
 Esp.MyAppName=Solicitudes-Esp
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
