@@ -231,9 +231,9 @@ Name: "Eng"; MessagesFile: "compiler:Default.isl"; InfoBeforeFile:"{#AuxDataDir}
 Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#AuxDataDir}\BeforeInstall-Spanish.txt"; InfoAfterFile:"{#AuxDataDir}\AfterInstall-Spanish.txt"; LicenseFile:"{#AuxDataDir}\License-Spanish.txt"
 
 [CustomMEssages]
-Eng.MyAppName=Solicitudes-Eng
+Eng.MyAppName=UToll Lane
 Eng.WelcomeMessage="Bienvenido al asistente de instalaci�n de SolicitudesApp"
-Esp.MyAppName=Solicitudes-Esp
+Esp.MyAppName=UToll Pista
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
 [Files]
