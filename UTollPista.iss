@@ -240,14 +240,15 @@ Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 Source: {#DependenciesDir}{#pm2Dir}; DestDir: "{userappdata}\npm"; Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: {#DependenciesDir}{#DotnetExeName}; Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#PostgreExeName}; Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#PostgreExeName};  Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#NodeExeName};     Flags: dontcopy noencryption
 
 
 [Icons]
-Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
-Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UtollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{group}\{cm:MyAppName}";         Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{commonstartup}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 
 
 
