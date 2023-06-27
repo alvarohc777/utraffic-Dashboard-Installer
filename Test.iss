@@ -2,13 +2,25 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 #define MyAppExeName "Solicitudes.exe"
-#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\server\*"
+#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
+
+#define UTollVisorExeName "UToll Pista.exe"     ; Frontend Executable
+#define UTollVisorDir "\UToll Pista-win32-x64\" ; Frontend App Directory
+
+
+
+#define ServerDir "\server\";
+#define ServerFile "\server.js";
+
+#define pm2Dir "\pm2\*";
+
+
 #define InstallationDir "C:\Solicitudes\"
 #define InstallerName "Instalador Solicitudes Backend"
 #define DependenciesDir "Dependencies\"
 #define DotnetExeName  "dotnet60_x64.exe"
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
-#define NodeExeName "node-v18.16.0-x86.msi"
+#define NodeExeName "node-v18.16.1-x64.msi"
 #define NIDAQzip "NIDAQ930f2.zip"
 
 #define RestartEnvVar "RestartInstaller"
@@ -25,7 +37,7 @@
 #define MyService "Solicitudes"
 
 #define AppId "{{4372BD00-1EC0-4F22-9F87-5436E942D980}"
-
+#define U
 
 [Setup]
 AppId = {#AppId}
@@ -145,16 +157,18 @@ begin
           InstallCMDParams := '';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
           Result := Exec('msiexec.exe','/i ' + ExpandConstant('{tmp}\{#NodeExeName}')+' /passive', '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
-          MsgBox('Restart the installer now', mbInformation, MB_OK);
-          Exec('cmd.exe', '/c setx {#RestartEnvVar} "True" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+          MsgBox('Restart the installer now {userappdata}', mbInformation, MB_OK);
+          InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M & pause';
+          Result := Exec('cmd.exe',InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
           ExitProcess(1);
         end
         else begin
           MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
 
-          InstallCMDParams := '/c npm install -g pm2 & pm2 & pause';
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
-          Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+//           InstallCMDParams := '/c npm install -g pm2 & pm2 & pause';
+//           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
+//           Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
 
           Exec('cmd.exe', '/c setx {#RestartEnvVar} "" /M', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 
@@ -169,7 +183,9 @@ begin
        Max := 50;
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
-       InstallCMDParams := '/c cd {#InstallationDir}{#MyAppName} & npm install & pause & pm2 start {#InstallationDir}{#MyAppName}\server.js & pause ';
+//        InstallCMDParams := '/c cd {#InstallationDir}{#MyAppName} & npm install & pause & pm2 start {#InstallationDir}{#MyAppName}\server.js & pause ';
+//        InstallCMDParams := ExpandConstant('/c echo %PATH% & echo {userappdata}\npm\pm2.cmd & {userappdata}\npm\pm2.cmd  & pause ');
+       InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pause ';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio';
        Result := Exec('cmd.exe', InstallCMDParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
      finally
@@ -193,11 +209,12 @@ Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 [Files]
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
+Source: {#DependenciesDir}{#pm2Dir}; DestDir: "{userappdata}\npm"; Flags: ignoreversion recursesubdirs createallsubdirs;
 Source: {#DependenciesDir}{#NodeExeName}; Flags: dontcopy noencryption
 
 [Icons]
-Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
-Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{group}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UtollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 
 [Run]
 ; Filename: {sys}\sc.exe; Parameters: "stop ""{#MyService}"""; Flags: runhidden
