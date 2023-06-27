@@ -208,7 +208,7 @@ begin
        OutputMarqueeProgressWizardPage.Animate;
 
 
-       InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force pause ';
+       InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
        InstallCMDExe := 'cmd.exe';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
