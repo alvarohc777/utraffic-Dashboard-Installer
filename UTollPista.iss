@@ -11,8 +11,12 @@
 #define InstallerName "UToll Pista Installer"
 #define ServerDir "\server\";
 #define ServerFile "\server.js";
-
 #define pm2Dir "\pm2\*";
+
+#define SchemasDir "\DB-Schemas\"
+#define SchemasTestFile "ut.utoll.tyr.vacio.backup"
+#define SchemasTestDBName "TestDB"
+#define PasswordDB "utraffic"
 
 
 ; Installer dependencies
@@ -28,7 +32,6 @@
 
 ; Auxiliary Files (Icons, Licenses, text files)
 #define AuxDataDir "AuxFiles\"
-
 #define AppIcon "Utraffic.ico"
 #define BeforeInstallFile "BeforeInstall.txt"
 #define AfterInstallFile "AfterInstall.txt"
@@ -113,8 +116,8 @@ var
 begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, Dotnet, PostgreSQL, NodeJs');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
@@ -130,10 +133,6 @@ var
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
-// ;          MsgBox('Entro a instalarse', mbInformation, MB_OK);
-     
-        
-
       if not Restarted then
       begin
         try
@@ -193,6 +192,7 @@ begin
           InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M';
           InstallCMDExe := 'cmd.exe';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
           ExitProcess(1);
         end;   
      finally
@@ -207,6 +207,10 @@ begin
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
 
+        InstallCMDParams := '/c set "PGPASSWORD={#PasswordDB}" &"C:\Program Files\PostgreSQL\15\bin\createdb.exe" -h localhost -p 5432 -U postgres {#SchemasTestDBName} & "C:\Program Files\PostgreSQL\15\bin\pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#SchemasTestDBName} ' + ExpandConstant('"{app}{#SchemasDir}{#SchemasTestFile}"') + ' & pause';
+        InstallCMDExe := 'cmd.exe';
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos';
+        Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
        InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
        InstallCMDExe := 'cmd.exe';
@@ -232,7 +236,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=UToll Lane
-Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
 Esp.MyAppName=UToll Pista
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
