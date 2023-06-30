@@ -11,7 +11,7 @@
 #define InstallerName "UToll Pista Installer"
 #define ServerDir "\server\";
 #define ServerFile "\server.js";
-#define pm2Dir "\pm2\*";
+#define pm2Dir "pm2\";
 
 #define SchemasDir "\DB-Schemas\"
 #define SchemasTestFile "ut.utoll.tyr.vacio.backup"
@@ -27,6 +27,7 @@
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
 #define NodeExeName "node-v18.16.0-x86.msi"
 #define NIDAQzip "NIDAQ930f2.zip"
+#define pm2 "pm2.tar"
 
 #define RestartEnvVar "RestartInstaller"
 
@@ -89,7 +90,7 @@ var
 begin
 
   
-  if Exec(DependencyExe,Params,'', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if Exec(DependencyExe,Params,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 1 then
         Result:=True
@@ -136,7 +137,7 @@ begin
       if not Restarted then
       begin
         try
-          Max := 6;
+          Max := 7;
 
           I := 1;
           OutputProgressWizardPage.SetProgress(I, Max);
@@ -156,6 +157,11 @@ begin
           I := 6;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
           ExtractTemporaryFile('{#NodeExeName}');
+          OutputProgressWizardPage.SetProgress(I, Max);
+
+          I := 7;
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PM2';
+          ExtractTemporaryFile('{#pm2}');
           OutputProgressWizardPage.SetProgress(I, Max);
         
         finally
@@ -188,6 +194,11 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           
+          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#pm2} -C {tmp} & xcopy /E /Y /I {tmp}\{#pm2Dir} {userappdata}\npm & pause')
+          InstallCMDExe := 'cmd.exe'
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
           MsgBox('Installer will close, execute installer again.', mbInformation, MB_OK);
           InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M';
           InstallCMDExe := 'cmd.exe';
@@ -243,7 +254,7 @@ Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 [Files]
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
-Source: {#DependenciesDir}{#pm2Dir}; DestDir: "{userappdata}\npm"; Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: {#DependenciesDir}{#pm2}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#PostgreExeName};  Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName};     Flags: dontcopy noencryption
