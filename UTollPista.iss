@@ -30,9 +30,14 @@
 #define NIDAQDir "NIDAQ930f2\"
 #define NIDAQExeName "setup.exe"
 #define NIDAQConfigFile "setupSpecs.ini"
-
 #define pm2 "pm2.tar"
+#define dotnet3E
 
+
+; Files Packed with Installer
+#define WindowsISO "Windows.iso"
+
+; Installation Environment Variables
 #define RestartEnvVar "RestartInstaller"
 
 ; Auxiliary Files (Icons, Licenses, text files)
@@ -213,10 +218,16 @@ begin
           InstallCMDExe := 'cmd.exe';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
+          InstallCMDParams := ExpandConstant('/c powershell.exe /c Mount-DiskImage -ImagePath {src}\{#WindowsISO} ; pause');
+          InstallCMDExe := 'cmd.exe '
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Testing';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          
           InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r & pause ');
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
 
           ExitProcess(1);
         end;   
