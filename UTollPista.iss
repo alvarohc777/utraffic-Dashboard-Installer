@@ -26,7 +26,11 @@
 #define DotnetExeName  "ndp461-devpack-kb3105179-enu.exe"
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
 #define NodeExeName "node-v18.16.0-x86.msi"
-#define NIDAQzip "NIDAQ930f2.zip"
+#define NIDAQ "NIDAQ.tar"
+#define NIDAQDir "NIDAQ930f2\"
+#define NIDAQExeName "setup.exe"
+#define NIDAQConfigFile "setupSpecs.ini"
+
 #define pm2 "pm2.tar"
 
 #define RestartEnvVar "RestartInstaller"
@@ -119,7 +123,7 @@ begin
   WizardForm.PasswordEdit.Text := '{#Password}';
   WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
   WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
-  OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, NIDAQ, Dotnet, PostgreSQL, NodeJs');
+  OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, NIDAQ, Dotnet, PostgreSQL, NodeJs, NI-DAQ');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
 
@@ -137,7 +141,7 @@ begin
       if not Restarted then
       begin
         try
-          Max := 7;
+          Max := 8;
 
           I := 1;
           OutputProgressWizardPage.SetProgress(I, Max);
@@ -162,6 +166,11 @@ begin
           I := 7;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PM2';
           ExtractTemporaryFile('{#pm2}');
+          OutputProgressWizardPage.SetProgress(I, Max);
+
+          I := 8;
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NIDAQ';
+          ExtractTemporaryFile('{#NIDAQ}');
           OutputProgressWizardPage.SetProgress(I, Max);
         
         finally
@@ -194,7 +203,7 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           
-          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#pm2} -C {tmp} & xcopy /E /Y /I {tmp}\{#pm2Dir} {userappdata}\npm & pause')
+          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#pm2} -C {tmp} & xcopy /E /Y /I {tmp}\{#pm2Dir} {userappdata}\npm')
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
@@ -202,6 +211,11 @@ begin
           MsgBox('Installer will close, execute installer again.', mbInformation, MB_OK);
           InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M';
           InstallCMDExe := 'cmd.exe';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r & pause ');
+          InstallCMDExe := 'cmd.exe'; 
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
           ExitProcess(1);
@@ -254,11 +268,12 @@ Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 [Files]
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
+; Dependencies Temporary Files
 Source: {#DependenciesDir}{#pm2}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#PostgreExeName};  Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName};     Flags: dontcopy noencryption
-
+Source: {#DependenciesDir}{#NIDAQ}; Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{cm:MyAppName}";         Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
