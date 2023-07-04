@@ -31,7 +31,7 @@
 #define NIDAQExeName "setup.exe"
 #define NIDAQConfigFile "setupSpecs.ini"
 #define pm2 "pm2.tar"
-#define dotnet3E
+#define DotnetOfflineExeName "NET-Framework-3.5-Offline-Installer-v2.3.exe"
 
 
 ; Files Packed with Installer
@@ -126,8 +126,8 @@ var
 begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, NIDAQ, Dotnet, PostgreSQL, NodeJs, NI-DAQ');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
@@ -223,6 +223,11 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Testing';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           
+          InstallCMDParams := ExpandConstant('/c {tmp}\{#DotnetOfflineExeName}');
+          InstallCMDExe := 'cmd.exe'
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet Offline';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          
           InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r & pause ');
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
@@ -272,7 +277,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=UToll Lane
-Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
 Esp.MyAppName=UToll Pista
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
@@ -280,11 +285,12 @@ Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 ; Dependencies Temporary Files
-Source: {#DependenciesDir}{#pm2}; Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#PostgreExeName};  Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName};     Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#pm2}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NIDAQ}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#DotnetOfflineExeName}; Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{cm:MyAppName}";         Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
