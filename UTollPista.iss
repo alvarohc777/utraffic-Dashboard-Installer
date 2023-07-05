@@ -290,7 +290,7 @@ begin
 
           if MsgBox('Se instalï¿½ correctamente Dotnet3.5', mbConfirmation, MB_YESNO) = IDNO then
           begin
-          ExitProcess(1);
+            ExitProcess(1);
           end;
 
           InstallCMDParams := '/c setx {#Checkpoint_2} "True" /M';
@@ -301,10 +301,15 @@ begin
       if not Checkpoint_3 then
         begin
 
-          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r ');
+          InstallCMDParams := ExpandConstant('/c echo "Decompressing NIDAQ" & tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r ');
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+          if MsgBox('Se instaló correctamente NIDAQ?', mbConfirmation, MB_YESNO) = IDNO then
+            begin
+              ExitProcess(1);
+            end;
 
             InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M & shutdown /r /t 10 ';
             InstallCMDExe := 'cmd.exe'; 
