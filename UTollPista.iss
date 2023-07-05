@@ -39,6 +39,9 @@
 
 ; Installation Environment Variables
 #define RestartEnvVar "RestartInstaller"
+#define Checkpoint_1 "Checkpoint_1"
+#define Checkpoint_2 "Checkpoint_2"
+#define Checkpoint_3 "Checkpoint_3"
 
 ; Auxiliary Files (Icons, Licenses, text files)
 #define AuxDataDir "AuxFiles\"
@@ -89,6 +92,9 @@ var
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
   Restarted: Boolean;
+  Checkpoint_1: Boolean;
+  Checkpoint_2: Boolean;
+  Checkpoint_3: Boolean;
 
 procedure ExitProcess(uExitCode: Integer);
   external 'ExitProcess@kernel32.dll stdcall';
@@ -123,6 +129,28 @@ begin
     else begin
       Restarted  := false;
     end;
+  if (GetEnv('{#Checkpoint_1}') <> '') then
+    begin
+      Checkpoint_1 := true
+    end 
+    else begin
+      Checkpoint_1  := false;
+    end;
+  if (GetEnv('{#Checkpoint_2}') <> '') then
+    begin
+      Checkpoint_2 := true
+    end 
+    else begin
+      Checkpoint_2  := false;
+    end;
+  if (GetEnv('{#Checkpoint_3}') <> '') then
+    begin
+      Checkpoint_3 := true
+    end 
+    else begin
+      Checkpoint_3  := false;
+    end;
+
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
   WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
@@ -135,11 +163,10 @@ end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  Result := Restarted and (
+  Result := (Checkpoint_1 or Checkpoint_2 or Checkpoint_3) and (
     (PageID = wpWelcome) or
     (PageID = wpLicense) or
     (PageID = wpPassword) or
-//     (PageID = wpInfoBefore) or
     (PageID = wpUserInfo) or
     (PageID = wpSelectDir) or
     (PageID = wpSelectComponents) or
@@ -159,45 +186,49 @@ begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
     try
-      if not Restarted then
+      Max := 10;
+
+      I := 1;
+      OutputProgressWizardPage.SetProgress(I, Max);
+      OutputProgressWizardPage.Show;
+      if not Checkpoint_1 then
       begin
-        
-          Max := 10;
-
-          I := 1;
-          OutputProgressWizardPage.SetProgress(I, Max);
-          OutputProgressWizardPage.Show;
-
-          I := 2;
+          I := 3;
 
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
           ExtractTemporaryFile('{#DotNetExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 4;
+          I := 5;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PostgreSQL';
           ExtractTemporaryFile('{#PostgreExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 5;
+          I := 6;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
           ExtractTemporaryFile('{#NodeExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 6;
+          I := 7;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PM2';
           ExtractTemporaryFile('{#pm2}');
           OutputProgressWizardPage.SetProgress(I, Max);
-
-          I := 9;
-          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NIDAQ';
-          ExtractTemporaryFile('{#NIDAQ}');
-          OutputProgressWizardPage.SetProgress(I, Max);
-
-          I := 10;
+      end;
+      if not Checkpoint_2 then
+      begin
+          I := 8;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting Dotnet3.5 Offline Installer';
           ExtractTemporaryFile('{#DotnetOfflineExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
+      end;
+      if not Checkpoint_3 then
+      begin    
+
+          I := 10;
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NIDAQ';
+          ExtractTemporaryFile('{#NIDAQ}');
+          OutputProgressWizardPage.SetProgress(I, Max);
+          
       end
       else begin
 
@@ -213,10 +244,8 @@ begin
       Max := 50;
       OutputMarqueeProgressWizardPage.Show; 
       OutputMarqueeProgressWizardPage.Animate;
-      if not Restarted then
+      if not Checkpoint_1 then
         begin
-          MsgBox(GetEnv('{#RestartEnvVar}'), mbInformation, MB_OK);
-
           InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "utraffic" --servicename "postgreSQL" --servicepassword "utraffic" --serverport 5432  --disable-components pgAdmin,stackbuilder';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
@@ -237,8 +266,12 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-          
-
+          InstallCMDParams := '/c setx {#Checkpoint_1} "True" /M';
+          InstallCMDExe := 'cmd.exe'; 
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+        end;
+      if not Checkpoint_2 then
+        begin
           InstallCMDParams := ExpandConstant('/c powershell.exe /c Mount-DiskImage -ImagePath {src}\{#WindowsISO}');
           InstallCMDExe := 'cmd.exe '
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Testing';
@@ -253,13 +286,21 @@ begin
           begin
           ExitProcess(1);
           end;
-          
+
+          InstallCMDParams := '/c setx {#Checkpoint_2} "True" /M';
+          InstallCMDExe := 'cmd.exe'; 
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+        end;
+
+      if not Checkpoint_3 then
+        begin
+
           InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r ');
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-            InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M & shutdown /r /t 10 ';
+            InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M & shutdown /r /t 10 ';
             InstallCMDExe := 'cmd.exe'; 
             MsgBox('Al presionar OK el sistema se reiniciará en 10 segundos', mbInformation, MB_OK);
             Result := InstallDependency(InstallCMDExe, InstallCMDParams);
@@ -271,6 +312,7 @@ begin
           
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Esperando a que se instalen los sensores';
 
+          MsgBox('En este punto se abre el NIDAQ para que se instalen los sensores manualmente', mbInformation, MB_OK);
           if MsgBox('Asegúrese de haber instalado correctamente los sensores', mbConfirmation, MB_YESNO) = IDNO then
           begin
           ExitProcess(1);
@@ -298,7 +340,7 @@ begin
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-       InstallCMDParams := '/c setx {#RestartEnvVar} "" /M';
+       InstallCMDParams := '/c setx {#Checkpoint_1} "" /M & setx {#Checkpoint_2} "" /M & setx {#Checkpoint_3} "" /M';
        InstallCMDExe := 'cmd.exe';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
      finally
