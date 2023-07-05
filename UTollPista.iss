@@ -255,6 +255,13 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
+            InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M & shutdown /r /t 10 ';
+            InstallCMDExe := 'cmd.exe'; 
+            MsgBox('Al presionar OK el sistema se reiniciar� en 10 segundos', mbInformation, MB_OK);
+            Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+            OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Reiniciando el sistema';
+
+          ExitProcess(1);
 
           ExitProcess(1);
         end;   
