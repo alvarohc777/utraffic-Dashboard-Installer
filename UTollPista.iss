@@ -123,17 +123,10 @@ begin
     else begin
       Restarted  := false;
     end;
-  Result := True;
-end;
-  
-procedure InitializeWizard();
-var
-  AfterId: Integer;
-begin
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, NIDAQ, Dotnet, PostgreSQL, NodeJs, NI-DAQ');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
@@ -165,45 +158,54 @@ var
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
+    try
       if not Restarted then
       begin
-        try
-          Max := 8;
+        
+          Max := 10;
 
           I := 1;
           OutputProgressWizardPage.SetProgress(I, Max);
           OutputProgressWizardPage.Show;
 
-          I := 3;
+          I := 2;
 
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
           ExtractTemporaryFile('{#DotNetExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 5;
+          I := 4;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PostgreSQL';
           ExtractTemporaryFile('{#PostgreExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 6;
+          I := 5;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
           ExtractTemporaryFile('{#NodeExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 7;
+          I := 6;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PM2';
           ExtractTemporaryFile('{#pm2}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
-          I := 8;
+          I := 9;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NIDAQ';
           ExtractTemporaryFile('{#NIDAQ}');
           OutputProgressWizardPage.SetProgress(I, Max);
-        
-        finally
-          OutputProgressWizardPage.Hide;
-         end;
+
+          I := 10;
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting Dotnet3.5 Offline Installer';
+          ExtractTemporaryFile('{#DotnetOfflineExeName}');
+          OutputProgressWizardPage.SetProgress(I, Max);
+      end
+      else begin
+
       end;
+    finally
+      OutputProgressWizardPage.Hide;
+     end;
+      
         
 
      
@@ -235,35 +237,45 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-          MsgBox('Installer will close, execute installer again.', mbInformation, MB_OK);
-          InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M';
-          InstallCMDExe := 'cmd.exe';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          
 
-          InstallCMDParams := ExpandConstant('/c powershell.exe /c Mount-DiskImage -ImagePath {src}\{#WindowsISO} ; pause');
+          InstallCMDParams := ExpandConstant('/c powershell.exe /c Mount-DiskImage -ImagePath {src}\{#WindowsISO}');
           InstallCMDExe := 'cmd.exe '
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Testing';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          
+
           InstallCMDParams := ExpandConstant('/c {tmp}\{#DotnetOfflineExeName}');
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet Offline';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+          if MsgBox('Se instaló correctamente Dotnet3.5', mbConfirmation, MB_YESNO) = IDNO then
+          begin
+          ExitProcess(1);
+          end;
           
-          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r & pause ');
+          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r ');
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
             InstallCMDParams := '/c setx {#RestartEnvVar} "True" /M & shutdown /r /t 10 ';
             InstallCMDExe := 'cmd.exe'; 
-            MsgBox('Al presionar OK el sistema se reiniciarï¿½ en 10 segundos', mbInformation, MB_OK);
+            MsgBox('Al presionar OK el sistema se reiniciará en 10 segundos', mbInformation, MB_OK);
             Result := InstallDependency(InstallCMDExe, InstallCMDParams);
             OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Reiniciando el sistema';
 
           ExitProcess(1);
+        end
+        else begin
+          
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Esperando a que se instalen los sensores';
 
+          if MsgBox('Asegúrese de haber instalado correctamente los sensores', mbConfirmation, MB_YESNO) = IDNO then
+          begin
           ExitProcess(1);
+          end;
+          
         end;   
      finally
        OutputMarqueeProgressWizardPage.Hide;
@@ -273,7 +285,6 @@ begin
    if CurPageId = wpInfoAfter then
    begin
      try
-       Max := 50;
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
 
@@ -306,7 +317,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=UToll Lane
-Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
 Esp.MyAppName=UToll Pista
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
