@@ -140,6 +140,22 @@ begin
 
 end;
 
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := Restarted and (
+    (PageID = wpWelcome) or
+    (PageID = wpLicense) or
+    (PageID = wpPassword) or
+//     (PageID = wpInfoBefore) or
+    (PageID = wpUserInfo) or
+    (PageID = wpSelectDir) or
+    (PageID = wpSelectComponents) or
+    (PageID = wpSelectProgramGroup) or
+    (PageID = wpSelectTasks) or
+    (PageID = wpReady)
+  );
+end;
+
 function NextButtonClick(CurPageId: Integer): Boolean;
 var 
   I, Max: Integer;
