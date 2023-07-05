@@ -121,6 +121,12 @@ var
   AfterId: Integer;
 begin
 
+  // Verificar que Windows ISO estï¿½ installado   
+  if not FileExists(ExpandConstant('{src}\{#WindowsISO}')) then
+  begin
+    MsgBox(ExpandConstant('Windows.iso was not detected in: "{src}"'), mbError, MB_OK);
+    ExitProcess(1);
+  end;  
 
   if (GetEnv('{#RestartEnvVar}') <> '') then
     begin
@@ -153,8 +159,8 @@ begin
 
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
-  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
-  WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
+  WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalaciï¿½n de UToll Pista';
+  WizardForm.WelcomeLabel2.Caption := 'Este programa instalarï¿½ UToll Pista en su versiï¿½n 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demï¿½s aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalaciï¿½n.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, NIDAQ, Dotnet, PostgreSQL, NodeJs, NI-DAQ');
   OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('Instalando dependencias', 'Este programa es un requerimiento para UToll Pista App.');
   OutputMarqueeProgressWizardPageId := wpInfoBefore;
@@ -282,7 +288,7 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet Offline';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-          if MsgBox('Se instaló correctamente Dotnet3.5', mbConfirmation, MB_YESNO) = IDNO then
+          if MsgBox('Se instalï¿½ correctamente Dotnet3.5', mbConfirmation, MB_YESNO) = IDNO then
           begin
           ExitProcess(1);
           end;
@@ -302,7 +308,7 @@ begin
 
             InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M & shutdown /r /t 10 ';
             InstallCMDExe := 'cmd.exe'; 
-            MsgBox('Al presionar OK el sistema se reiniciará en 10 segundos', mbInformation, MB_OK);
+            MsgBox('Al presionar OK el sistema se reiniciarï¿½ en 10 segundos', mbInformation, MB_OK);
             Result := InstallDependency(InstallCMDExe, InstallCMDParams);
             OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Reiniciando el sistema';
 
@@ -313,7 +319,7 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Esperando a que se instalen los sensores';
 
           MsgBox('En este punto se abre el NIDAQ para que se instalen los sensores manualmente', mbInformation, MB_OK);
-          if MsgBox('Asegúrese de haber instalado correctamente los sensores', mbConfirmation, MB_YESNO) = IDNO then
+          if MsgBox('Asegï¿½rese de haber instalado correctamente los sensores', mbConfirmation, MB_YESNO) = IDNO then
           begin
           ExitProcess(1);
           end;
@@ -359,7 +365,7 @@ Name: "Esp"; MessagesFile: "compiler:Languages\Spanish.isl"; InfoBeforeFile:"{#A
 
 [CustomMEssages]
 Eng.MyAppName=UToll Lane
-Eng.WelcomeMessage="Bienvenido al asistente de instalación de SolicitudesApp"
+Eng.WelcomeMessage="Bienvenido al asistente de instalaciï¿½n de SolicitudesApp"
 Esp.MyAppName=UToll Pista
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
