@@ -108,8 +108,14 @@ begin
     end;
 end;
 
-function InitializeSetup(): Boolean;
+
+  
+procedure InitializeWizard();
+var
+  AfterId: Integer;
 begin
+
+
   if (GetEnv('{#RestartEnvVar}') <> '') then
     begin
       Restarted := true
