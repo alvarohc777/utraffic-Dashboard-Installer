@@ -11,7 +11,7 @@
 #define InstallerName "UToll Pista Installer - LogicFlow"
 #define ServerDir "\server\";
 #define ServerFile "\server.js";
-#define pm2Dir "pm2\";
+#define npmDir "npm\";
 
 #define SchemasDir "\DB-Schemas\"
 #define SchemasTestFile "ut.utoll.tyr.vacio.backup"
@@ -365,7 +365,7 @@ begin
 //         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
         MsgBox('Backup restored from .backup', mbInformation, MB_OK);       
 
-       InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
+       InstallCMDParams := '/c pm2-startup install & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
        InstallCMDExe := 'cmd.exe';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
 //        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
