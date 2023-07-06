@@ -257,6 +257,11 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
+          InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any & pause';
+          InstallCMDExe := 'cmd.exe';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
           InstallCMDParams := '/install /passive /norestart';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet 4.6.1';
@@ -266,10 +271,23 @@ begin
           InstallCMDExe := 'msiexec.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+          InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="node in" dir=in action=allow program="{commonpf}\nodejs\node.exe" & netsh advfirewall firewall add rule name="node out" dir=out action=allow program="{commonpf}\nodejs\node.exe" & pause');
+          InstallCMDExe := 'cmd.exe';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          
+
           
           InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#npm} -C {tmp} & xcopy /E /Y /I {tmp}\{#npmDir} {userappdata}\npm')
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+          MsgBox('Instalado: Pm2', mbInformation, MB_OK);
+
+          InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="PM2 in" dir=in action=allow program="{userappdata}\npm\pm2.cmd" & netsh advfirewall firewall add rule name="PM2 out" dir=out action=allow program="{userappdata}\npm\pm2.cmd" & pause');
+          InstallCMDExe := 'cmd.exe'
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
           InstallCMDParams := '/c setx {#Checkpoint_1} "True" /M';
@@ -346,7 +364,7 @@ begin
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
-       InstallCMDParams := '/c  pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
+       InstallCMDParams := '/c pm2-startup install & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
        InstallCMDExe := 'cmd.exe';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
