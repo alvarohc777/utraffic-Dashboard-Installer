@@ -1,3 +1,11 @@
 postgresql-15.3-1-windows-x64.exe
 dotnet60_x64.exe
 Output/Instalador Solicitudes Backend.exe
+Dependencies/NIDAQ930f2.zip
+Dependencies/node-v18.16.0-x86.msi
+Dependencies/NIDAQ930f2/*
+Dependencies/node_modules/*
+Dependencies/VC_redist.x64.exe
+Dependencies/VC_redist.x86.exe
+Dependencies/npm/*
+Publish/*
