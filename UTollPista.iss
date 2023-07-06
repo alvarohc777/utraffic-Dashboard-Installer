@@ -11,7 +11,7 @@
 #define InstallerName "UToll Pista Installer"
 #define ServerDir "\server\";
 #define ServerFile "\server.js";
-#define pm2Dir "pm2\";
+#define npmDir "npm\";
 
 #define SchemasDir "\DB-Schemas\"
 #define SchemasTestFile "ut.utoll.tyr.vacio.backup"
@@ -30,7 +30,7 @@
 #define NIDAQDir "NIDAQ930f2\"
 #define NIDAQExeName "setup.exe"
 #define NIDAQConfigFile "setupSpecs.ini"
-#define pm2 "pm2.tar"
+#define npm "npm.tar"
 #define DotnetOfflineExeName "NET-Framework-3.5-Offline-Installer-v2.3.exe"
 
 
@@ -267,7 +267,7 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           
-          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#pm2} -C {tmp} & xcopy /E /Y /I {tmp}\{#pm2Dir} {userappdata}\npm')
+          InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#npm} -C {tmp} & xcopy /E /Y /I {tmp}\{#npmDir} {userappdata}\npm')
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
@@ -306,7 +306,7 @@ begin
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-          if MsgBox('Se instaló correctamente NIDAQ?', mbConfirmation, MB_YESNO) = IDNO then
+          if MsgBox('Se instalï¿½ correctamente NIDAQ?', mbConfirmation, MB_YESNO) = IDNO then
             begin
               ExitProcess(1);
             end;
