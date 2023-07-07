@@ -10,6 +10,13 @@
 #define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
 #define InstallationDir "{commonpf}\"
 #define InstallerName "UToll Pista Installer"
+
+; Installer components
+#define UTollVisorExeName   "UToll Pista.exe"     ; Frontend Executable
+#define UTollVisorDir       "\UToll Pista-win32-x64\" ; Frontend App Directory
+#define ServerDir           "\server\";
+#define ServerFile          "\server.js";
+
 #define SchemasDir          "\DB-Schemas\"
 #define DBLogBackup         "ut_utoll_tyr_log_vacia.backup"
 #define DBLogName           "ut_utoll_tyr_log"
@@ -38,25 +45,22 @@
 #define UTCExe              "UT.UToll.TyR.UTC.Server.exe"
 
 
-#define SchemasDir "\DB-Schemas\"
-#define SchemasTestFile "ut.utoll.tyr.vacio.backup"
-#define SchemasTestDBName "TestDB"
-#define PasswordDB "utraffic"
 
 
 ; Installer dependencies
-#define DependenciesDir "Dependencies\"
-#define VCRedisX64ExeName "VC_redist.x64.exe"
-#define VCRedisX86ExeName "VC_redist.x86.exe"
-#define DotnetExeName  "ndp461-devpack-kb3105179-enu.exe"
-#define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
-#define NodeExeName "node-v18.16.1-x64.msi"
-#define NIDAQ "NIDAQ.tar"
-#define NIDAQDir "NIDAQ930f2\"
-#define NIDAQExeName "setup.exe"
-#define NIDAQConfigFile "setupSpecs.ini"
+#define DependenciesDir       "Dependencies\"
+#define VCRedisX64ExeName     "VC_redist.x64.exe"
+#define VCRedisX86ExeName     "VC_redist.x86.exe"
+#define DotnetExeName         "ndp461-devpack-kb3105179-enu.exe"
+#define PostgreExeName        "postgresql-15.3-1-windows-x64.exe"
+#define NodeExeName           "node-v18.16.1-x64.msi"
+#define NIDAQ                 "NIDAQ.tar"
+#define NIDAQDir              "NIDAQ930f2\"
+#define NIDAQExeName          "setup.exe"
+#define NIDAQConfigFile       "customInstallation.ini"
 #define npm "npm.tar"
 #define npmDir "npm\";
+#define DotnetOfflineExeName  "NET-Framework-3.5-Offline-Installer-v2.3.exe"
 
 
 ; Files Packed with Installer
@@ -121,6 +125,7 @@ var
   Checkpoint_2: Boolean;
   Checkpoint_3: Boolean;
 
+// Procedure to close the Installer
 procedure ExitProcess(uExitCode: Integer);
   external 'ExitProcess@kernel32.dll stdcall';
 
