@@ -9,9 +9,26 @@
 #define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
 #define InstallationDir "C:\UTollPista\"
 #define InstallerName "UToll Pista Installer"
-#define ServerDir "\server\";
-#define ServerFile "\server.js";
-#define npmDir "npm\";
+#define CsServiceDir        "\Deploy\"
+#define CamarografoDir      "Debug_Camarografo\"
+#define CamarografoExe      "UT.UToll.TyR.Pista.Camarografo.exe"
+#define ConectorDir         "Debug_ConectorV2\net5.0\"
+#define ConectorExe         "UT.UToll.TyR.ConectorV2.exe"
+#define ImpresoraDir        "Debug_Impresora\"
+#define ImpresoraExe        "UT.UToll.TyR.Pista.Printer.exe"
+#define LectorManualDir     "Debug_LectorManual\"
+#define LectorManualExe     "UT.UToll.TyR.Pista.LectorManual.exe"
+#define MantenimientoDir    "Debug_Mantenimiento\"
+#define MantenimientoExe    "UT.UToll.TyR.Pista.Mantenimiento.exe"
+#define PanelMensajeriaDir  "Debug_PanelMensajeria\"
+#define PanelMensajeriaExe  "UT.UToll.TyR.Pista.PMV.exe"
+#define PistaDir            "Debug_Pista\"
+#define PistaExe            "UT.UToll.TyR.Pista.Service.exe"
+#define RFIDDir             "Debug_RFID\"
+#define RFIDExe             "UT.UToll.TyR.RfidServer.exe"
+#define UTCDir              "Debug_UTC\"
+#define UTCExe              "UT.UToll.TyR.UTC.Server.exe"
+
 
 #define SchemasDir "\DB-Schemas\"
 #define SchemasTestFile "ut.utoll.tyr.vacio.backup"
@@ -25,7 +42,7 @@
 #define VCRedisX86ExeName "VC_redist.x86.exe"
 #define DotnetExeName  "ndp461-devpack-kb3105179-enu.exe"
 #define PostgreExeName "postgresql-15.3-1-windows-x64.exe"
-#define NodeExeName "node-v18.16.0-x86.msi"
+#define NodeExeName "node-v18.16.1-x64.msi"
 #define NIDAQ "NIDAQ.tar"
 #define NIDAQDir "NIDAQ930f2\"
 #define NIDAQExeName "setup.exe"
@@ -407,6 +424,43 @@ Source: {#DependenciesDir}{#DotnetOfflineExeName}; Flags: dontcopy noencryption
 Name: "{group}\{cm:MyAppName}";         Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commonstartup}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+
+[Run]
+;Instalacion Programas
+Filename: "{app}\{#CsServiceDir}\{#CamarografoDir}\{#CamarografoExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Camar�grafo"; 
+Filename: "{app}\{#CsServiceDir}\{#ConectorDir}\{#ConectorExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando ConectorV2";
+Filename: "{app}\{#CsServiceDir}\{#ImpresoraDir}\{#ImpresoraExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Printer";
+Filename: "{app}\{#CsServiceDir}\{#LectorManualDir}\{#LectorManualExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Lector Manual";
+Filename: "{app}\{#CsServiceDir}\{#MantenimientoDir}\{#MantenimientoExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Mantenimiento";
+Filename: "{app}\{#CsServiceDir}\{#PanelMensajeriaDir}\{#PanelMensajeriaExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Panel de Mensajer�a";
+Filename: "{app}\{#CsServiceDir}\{#PistaDir}\{#PistaExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Pista";
+Filename: "{app}\{#CsServiceDir}\{#RFIDDir}\{#RFIDExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando RFID Server";
+Filename: "{app}\{#CsServiceDir}\{#UTCDir}\{#UTCExe}"; Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando UTC Server";
+
+
+[UninstallRun]
+; Stop Services
+Filename: "{app}\{#CsServiceDir}\{#CamarografoDir}\{#CamarografoExe}";          Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#ConectorDir}\{#ConectorExe}";                Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#ImpresoraDir}\{#ImpresoraExe}";              Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#LectorManualDir}\{#LectorManualExe}";        Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#MantenimientoDir}\{#MantenimientoExe}";      Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#PanelMensajeriaDir}\{#PanelMensajeriaExe}";  Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#PistaDir}\{#PistaExe}";                      Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#RFIDDir}\{#RFIDExe}";                        Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#UTCDir}\{#UTCExe}";                          Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+
+; Uninstall Services
+Filename: "{app}\{#CsServiceDir}\{#CamarografoDir}\{#CamarografoExe}";          Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#ConectorDir}\{#ConectorExe}";                Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#ImpresoraDir}\{#ImpresoraExe}";              Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#LectorManualDir}\{#LectorManualExe}";        Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#MantenimientoDir}\{#MantenimientoExe}";      Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#PanelMensajeriaDir}\{#PanelMensajeriaExe}";  Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#PistaDir}\{#PistaExe}";                      Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#RFIDDir}\{#RFIDExe}";                        Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+Filename: "{app}\{#CsServiceDir}\{#UTCDir}\{#UTCExe}";                          Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+
 
 
 
