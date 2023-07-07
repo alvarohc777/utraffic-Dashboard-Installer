@@ -5,9 +5,10 @@
 #define UTollVisorExeName "UToll Pista.exe"     ; Frontend Executable
 #define UTollVisorDir "\UToll Pista-win32-x64\" ; Frontend App Directory
 
-; Installer components
+
+
 #define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
-#define InstallationDir "C:\UTollPista\"
+#define InstallationDir "{commonpf}\"
 #define InstallerName "UToll Pista Installer"
 #define SchemasDir          "\DB-Schemas\"
 #define DBLogBackup         "ut_utoll_tyr_log_vacia.backup"
@@ -408,7 +409,7 @@ begin
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Logger Pista';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
-       InstallCMDParams := '/c pm2-startup install & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
+       InstallCMDParams := ExpandConstant('/c pm2-startup install & pm2 start "{app}\server\server.js" & pm2 save --force & pause');
        InstallCMDExe := 'cmd.exe';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
