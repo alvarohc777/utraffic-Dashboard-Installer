@@ -2,8 +2,6 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 
-#define UTollVisorExeName "UToll Pista.exe"     ; Frontend Executable
-#define UTollVisorDir "\UToll Pista-win32-x64\" ; Frontend App Directory
 
 
 
@@ -81,8 +79,10 @@
 #define public Dependency_NoExampleSetup
 #define Password "utraffic"
 
+#define PasswordDB "utraffic"
 #define MyService "Solicitudes"
-
+#define PostgreBin "C:\Program Files\PostgreSQL\15\bin\"
+; App GUID
 #define AppId "{{4372BD00-1EC0-4F22-9F87-5436E942D980}"
 
 
@@ -120,7 +120,6 @@ var
   OutputProgressWizardPage: TOutputProgressWizardPage;
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
-  Restarted: Boolean;
   Checkpoint_1: Boolean;
   Checkpoint_2: Boolean;
   Checkpoint_3: Boolean;
@@ -144,6 +143,15 @@ begin
     end;
 end;
 
+// Funci�n para evaluar los checkpoint
+function Checkpoint(EnvVar: String): Boolean;
+begin
+  if (GetEnv(EnvVar) <> '') then
+    Result := True
+  else
+    Result := False;
+end;
+
 
   
 procedure InitializeWizard();
@@ -158,34 +166,10 @@ begin
     ExitProcess(1);
   end;  
 
-  if (GetEnv('{#RestartEnvVar}') <> '') then
-    begin
-      Restarted := true
-    end 
-    else begin
-      Restarted  := false;
-    end;
-  if (GetEnv('{#Checkpoint_1}') <> '') then
-    begin
-      Checkpoint_1 := true
-    end 
-    else begin
-      Checkpoint_1  := false;
-    end;
-  if (GetEnv('{#Checkpoint_2}') <> '') then
-    begin
-      Checkpoint_2 := true
-    end 
-    else begin
-      Checkpoint_2  := false;
-    end;
-  if (GetEnv('{#Checkpoint_3}') <> '') then
-    begin
-      Checkpoint_3 := true
-    end 
-    else begin
-      Checkpoint_3  := false;
-    end;
+  // Verificar los checkpoints
+  Checkpoint_1 := Checkpoint('{#Checkpoint_1}');
+  Checkpoint_2 := Checkpoint('{#Checkpoint_2}');
+  Checkpoint_3 := Checkpoint('{#Checkpoint_3}');
 
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
@@ -282,14 +266,9 @@ begin
       OutputMarqueeProgressWizardPage.Animate;
       if not Checkpoint_1 then
         begin
-          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "utraffic" --servicename "postgreSQL" --servicepassword "utraffic" --serverport 5432  --disable-components pgAdmin,stackbuilder';
+          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "utraffic" --servicename "postgreSQL" --servicepassword "{#PasswordDB}" --serverport 5432  --disable-components pgAdmin,stackbuilder';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-
-          InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any & pause';
-          InstallCMDExe := 'cmd.exe';
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
           InstallCMDParams := '/install /passive /norestart';
@@ -301,24 +280,12 @@ begin
           InstallCMDExe := 'msiexec.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-
-          InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="node in" dir=in action=allow program="{commonpf}\nodejs\node.exe" & netsh advfirewall firewall add rule name="node out" dir=out action=allow program="{commonpf}\nodejs\node.exe" & pause');
-          InstallCMDExe := 'cmd.exe';
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          
-
-          
+             
           InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#npm} -C {tmp} & xcopy /E /Y /I {tmp}\{#npmDir} {userappdata}\npm')
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
           MsgBox('Instalado: Pm2', mbInformation, MB_OK);
-
-          InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="PM2 in" dir=in action=allow program="{userappdata}\npm\pm2.cmd" & netsh advfirewall firewall add rule name="PM2 out" dir=out action=allow program="{userappdata}\npm\pm2.cmd" & pause');
-          InstallCMDExe := 'cmd.exe'
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
           InstallCMDParams := '/c setx {#Checkpoint_1} "True" /M';
           InstallCMDExe := 'cmd.exe'; 
@@ -349,7 +316,7 @@ begin
       if not Checkpoint_3 then
         begin
 
-          InstallCMDParams := ExpandConstant('/c echo "Decompressing NIDAQ" & tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}setup.ini /qb /AcceptLicenses yes /r ');
+          InstallCMDParams := ExpandConstant('/c echo "Decompressing NIDAQ" & tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}{#NIDAQConfigFile} /qb /AcceptLicenses yes /r ');
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
