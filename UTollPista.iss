@@ -9,6 +9,13 @@
 #define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
 #define InstallationDir "C:\UTollPista\"
 #define InstallerName "UToll Pista Installer"
+#define SchemasDir          "\DB-Schemas\"
+#define DBLogBackup         "ut_utoll_tyr_log_vacia.backup"
+#define DBLogName           "ut_utoll_tyr_log"
+#define DBPistaBackup       "ut_utoll_tyr_vacia.backup"
+#define DBPistaName         "ut_utoll_tyr"
+
+
 #define CsServiceDir        "\Deploy\"
 #define CamarografoDir      "Debug_Camarografo\"
 #define CamarografoExe      "UT.UToll.TyR.Pista.Camarografo.exe"
@@ -48,7 +55,7 @@
 #define NIDAQExeName "setup.exe"
 #define NIDAQConfigFile "setupSpecs.ini"
 #define npm "npm.tar"
-#define DotnetOfflineExeName "NET-Framework-3.5-Offline-Installer-v2.3.exe"
+#define npmDir "npm\";
 
 
 ; Files Packed with Installer
@@ -234,7 +241,7 @@ begin
 
           I := 7;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PM2';
-          ExtractTemporaryFile('{#pm2}');
+          ExtractTemporaryFile('{#npm}');
           OutputProgressWizardPage.SetProgress(I, Max);
       end;
       if not Checkpoint_2 then
@@ -376,9 +383,14 @@ begin
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
 
-        InstallCMDParams := '/c set "PGPASSWORD={#PasswordDB}" &"C:\Program Files\PostgreSQL\15\bin\createdb.exe" -h localhost -p 5432 -U postgres {#SchemasTestDBName} & "C:\Program Files\PostgreSQL\15\bin\pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#SchemasTestDBName} ' + ExpandConstant('"{app}{#SchemasDir}{#SchemasTestFile}"') + ' & pause';
+        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD={#PasswordDB}" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
         InstallCMDExe := 'cmd.exe';
-        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos';
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Pista';
+        Result := InstallDependency(InstallCMDExe, InstallCMDParams)
+
+        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD={#PasswordDB}" &"{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBLogName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBLogName} "{app}{#SchemasDir}{#DBLogBackup}" & pause');
+        InstallCMDExe := 'cmd.exe';
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Logger Pista';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
        InstallCMDParams := '/c pm2-startup install & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
@@ -416,7 +428,7 @@ Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 Source: {#DependenciesDir}{#PostgreExeName};  Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName};     Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#pm2}; Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#npm}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NIDAQ}; Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#DotnetOfflineExeName}; Flags: dontcopy noencryption
 
