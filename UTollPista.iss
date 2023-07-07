@@ -383,6 +383,21 @@ begin
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
 
+        InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any & pause';
+        InstallCMDExe := 'cmd.exe';
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
+        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="node in" dir=in action=allow program="{commonpf}\nodejs\node.exe" & netsh advfirewall firewall add rule name="node out" dir=out action=allow program="{commonpf}\nodejs\node.exe" & pause');
+        InstallCMDExe := 'cmd.exe';
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
+        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="PM2 in" dir=in action=allow program="{userappdata}\npm\pm2.cmd" & netsh advfirewall firewall add rule name="PM2 out" dir=out action=allow program="{userappdata}\npm\pm2.cmd" & pause');
+        InstallCMDExe := 'cmd.exe'
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
+        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
         InstallCMDParams := ExpandConstant('/c set "PGPASSWORD={#PasswordDB}" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Pista';
