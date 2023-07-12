@@ -395,6 +395,10 @@ begin
           
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Esperando a que se instalen los sensores';
 
+          InstallCMDParams := '/c "C:\Program Files (x86)\National Instruments\MAX\NIMax.exe"';
+          InstallCMDExe := 'cmd.exe'; 
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
           MsgBox('En este punto se abre el NIDAQ para que se instalen los sensores manualmente', mbInformation, MB_OK);
           if MsgBox('Aseg�rese de haber instalado correctamente los sensores', mbConfirmation, MB_YESNO) = IDNO then
           begin
