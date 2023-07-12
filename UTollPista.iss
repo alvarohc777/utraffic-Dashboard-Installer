@@ -5,15 +5,15 @@
 
 
 
-#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\*"
+#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\"
 #define InstallationDir "{commonpf}\"
 #define InstallerName "UToll Pista Installer"
 
 ; Installer components
 #define UTollVisorExeName   "UToll Pista.exe"     ; Frontend Executable
-#define UTollVisorDir       "\UToll Pista-win32-x64\" ; Frontend App Directory
-#define ServerDir           "\server\";
-#define ServerFile          "\server.js";
+#define UTollVisorDir       "UToll Pista-win32-x64\" ; Frontend App Directory  ;1
+#define ServerDir           "server\";
+#define ServerFile          "\server.js";                                      ;2
 
 #define SchemasDir          "\DB-Schemas\"
 #define DBLogBackup         "ut_utoll_tyr_log_vacia.backup"
