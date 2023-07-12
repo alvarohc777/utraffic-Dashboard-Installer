@@ -444,6 +444,10 @@ begin
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
+        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="Pista in" dir=in action=allow program="{app}\{#PistaDir}\{#PistaExe}" & netsh advfirewall firewall add rule name="Pista out" dir=out action=allow program="{app}\{#PistaDir}\{#PistaExe}" & pause');
+        InstallCMDExe := 'cmd.exe'
+        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pista Service';
+        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
         InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Pista';
