@@ -79,6 +79,11 @@
 #define Password "utraffic"
 
 #define PasswordDB "utraffic"
+
+#define PasswordEnvVar "PasswordDB"
+#define IdPistaEnvVar "IdPista"
+#define IdPlazaEnvVar "IdPlaza"
+
 #define MyService "Solicitudes"
 #define PostgreBin "C:\Program Files\PostgreSQL\15\bin\"
 ; App GUID
@@ -119,9 +124,13 @@ var
   OutputProgressWizardPage: TOutputProgressWizardPage;
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
+  PistaSetupPage: TInputQueryWizardPage;
   Checkpoint_1: Boolean;
   Checkpoint_2: Boolean;
   Checkpoint_3: Boolean;
+  PasswordDB: String;
+  IdPista: String;
+  IdPlaza: String;
 
 // Procedure to close the Installer
 procedure ExitProcess(uExitCode: Integer);
@@ -151,6 +160,13 @@ begin
     Result := False;
 end;
 
+procedure CurPageChanged(CurPageId: Integer);
+begin
+  if CurPageId = wpReady then 
+    begin
+      WizardForm.BackButton.Hide
+    end;
+end;
 
   
 procedure InitializeWizard();
@@ -164,11 +180,23 @@ begin
     MsgBox(ExpandConstant('Windows.iso was not detected in: "{src}"'), mbError, MB_OK);
     ExitProcess(1);
   end;  
+    PistaSetupPage := CreateInputQueryPage(wpPassword, 
+  'Información de Configuración', 'Contraseña Base de datos', 
+  'Especifique la contraseña, pulse click en Siguiente.');
+  PistaSetupPage.Add('Password Base de Datos', True);
+  PistaSetupPage.Values[0] := 'utraffic'; 
+  PistaSetupPage.Add('Id Pista', False);
+  PistaSetupPage.Values[1] := '1'; 
+  PistaSetupPage.Add('Id Plaza', False);
+  PistaSetupPage.Values[2] := '1';
 
   // Verificar los checkpoints
   Checkpoint_1 := Checkpoint('{#Checkpoint_1}');
   Checkpoint_2 := Checkpoint('{#Checkpoint_2}');
   Checkpoint_3 := Checkpoint('{#Checkpoint_3}');
+  PasswordDB := GetEnv('{#PasswordEnvVar}');
+  IdPista := GetEnv('{#IdPistaEnvVar}');
+  IdPlaza := GetEnv('{#IdPlazaEnvVar}');
 
   WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
@@ -191,7 +219,7 @@ begin
     (PageID = wpSelectComponents) or
     (PageID = wpSelectProgramGroup) or
     (PageID = wpSelectTasks) or
-    (PageID = wpReady)
+    (PageID = PistaSetupPage.ID)  
   );
 end;
 
@@ -201,6 +229,7 @@ var
   InstallCMDParams: String;
   InstallCMDExe: String;
   ResultCode: Integer;
+  strFilename: string;
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
@@ -265,7 +294,11 @@ begin
       OutputMarqueeProgressWizardPage.Animate;
       if not Checkpoint_1 then
         begin
-          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "utraffic" --servicename "postgreSQL" --servicepassword "{#PasswordDB}" --serverport 5432  --disable-components pgAdmin,stackbuilder';
+          InstallDependency('cmd.exe', Format('/c setx {#PasswordEnvVar} "%s" /M & setx {#IdPistaEnvVar} "%s" /M & setx {#IdPlazaEnvVar} "%s" /M', [PistaSetupPage.Values[0], PistaSetupPage.Values[1], PistaSetupPage.Values[2]])); 
+
+          
+          
+          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "'+PistaSetupPage.Values[0]+'" --servicename "postgreSQL" --servicepassword "'+PistaSetupPage.Values[0]+'" --serverport 5432  --disable-components pgAdmin,stackbuilder';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
@@ -354,6 +387,22 @@ begin
      try
        OutputMarqueeProgressWizardPage.Show;
        OutputMarqueeProgressWizardPage.Animate;
+ 
+          //Configuracion Servicio
+            
+            strFilename := ExpandConstant('{app}\{#PistaDir}UT.UToll.TyR.Pista.Service.exe.config');
+            MsgBox(strFilename, mbInformation, MB_OK);
+            if FileExists(strFilename) then
+            begin
+                FileReplaceString(strFilename, '{PasswordDB}', PasswordDB);
+            end;
+
+            strFilename := ExpandConstant('{app}\{#PistaDir}config.json');
+            if FileExists(strFilename) then
+            begin
+                FileReplaceString(strFilename, '{IdPista}', IdPista);
+                FileReplaceString(strFilename, '{IdPlaza}', IdPlaza);
+            end;
 
         InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any & pause';
         InstallCMDExe := 'cmd.exe';
@@ -370,12 +419,12 @@ begin
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD={#PasswordDB}" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
+        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Pista';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
-        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD={#PasswordDB}" &"{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBLogName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBLogName} "{app}{#SchemasDir}{#DBLogBackup}" & pause');
+        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" &"{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBLogName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBLogName} "{app}{#SchemasDir}{#DBLogBackup}" & pause');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Logger Pista';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
