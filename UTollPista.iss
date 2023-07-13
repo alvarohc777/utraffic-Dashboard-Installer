@@ -5,7 +5,7 @@
 
 
 
-#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\Publish\"
+#define PublishFolder "Publish\"
 #define InstallationDir "{commonpf}\"
 #define InstallerName "UToll Pista Installer"
 
@@ -64,7 +64,6 @@
 #define WindowsISO "Windows.iso"
 
 ; Installation Environment Variables
-#define RestartEnvVar "RestartInstaller"
 #define Checkpoint_1 "Checkpoint_1"
 #define Checkpoint_2 "Checkpoint_2"
 #define Checkpoint_3 "Checkpoint_3"
@@ -176,7 +175,7 @@ begin
 
   try
     result := true;
-  
+
     try
       MyFile.LoadFromFile(FileName);
       MyText := MyFile.Text;
@@ -204,7 +203,7 @@ begin
   begin
     MsgBox(ExpandConstant('Windows.iso was not detected in: "{src}"'), mbError, MB_OK);
     ExitProcess(1);
-  end;  
+  end; 
     PistaSetupPage := CreateInputQueryPage(wpPassword, 
   'Información de Configuración', 'Contraseña Base de datos', 
   'Especifique la contraseña, pulse click en Siguiente.');
@@ -243,7 +242,7 @@ begin
     (PageID = wpSelectDir) or
     (PageID = wpSelectComponents) or
     (PageID = wpSelectProgramGroup) or
-    (PageID = wpSelectTasks) or
+    (PageID = wpSelectTasks) or 
     (PageID = PistaSetupPage.ID)  
   );
 end;
@@ -260,7 +259,6 @@ begin
     begin
     try
       Max := 10;
-
       I := 1;
       OutputProgressWizardPage.SetProgress(I, Max);
       OutputProgressWizardPage.Show;
@@ -311,8 +309,7 @@ begin
      end;
       
         
-
-     
+   
     try 
       Max := 50;
       OutputMarqueeProgressWizardPage.Show; 
@@ -452,6 +449,7 @@ begin
         InstallCMDExe := 'cmd.exe'
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pista Service';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
         InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Pista';
