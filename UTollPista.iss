@@ -41,7 +41,7 @@
 #define UTCDir              "UTC\"
 #define UTCExe              "UT.UToll.TyR.UTC.Server.exe"
 
-
+#define UtilsDir            "Utils\"
 
 
 ; Installer dependencies
@@ -515,6 +515,7 @@ Name: Database;                 Description: "Database Schemas";                
 Name: Database\Pista;           Description: "Pista Database";                  types: full; Flags: fixed; 
 Name: Database\PistaLog;        Description: "Pista Log Database";              types: full; Flags: fixed; 
 
+Name: Utils;                    Description: "Touch Screen Drivers";            types: full; Flags: fixed;
 
 
           
@@ -533,6 +534,7 @@ Source: {#PublishFolder}{#CsServiceDir}{#UTCDir}*;              DestDir: "{app}\
 Source: {#PublishFolder}{#ServerDir}*;                          DestDir: "{app}\{#ServerDir}";          Flags: ignoreversion recursesubdirs createallsubdirs; Components: Server
 Source: {#PublishFolder}{#SchemasDir}{#DBLogBackup};            DestDir: "{app}\{#SchemasDir}";         Flags: ignoreversion recursesubdirs createallsubdirs; Components: Database\Pista
 Source: {#PublishFolder}{#SchemasDir}{#DBPistaBackup};          DestDir: "{app}\{#SchemasDir}";         Flags: ignoreversion recursesubdirs createallsubdirs; Components: DataBase\PistaLog
+Source: {#PublishFolder}{#UtilsDir}*;                           DestDir: "{app}\{#UtilsDir}";           Flags: ignoreversion recursesubdirs createallsubdirs; Components: Utils
 ; Icons and Aux Files
 Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 ; Dependencies Temporary Files
