@@ -141,7 +141,7 @@ var
 begin
 
   
-  if Exec(DependencyExe,Params,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
+  if Exec(DependencyExe,Params,'', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 1 then
         Result:=True
@@ -432,37 +432,37 @@ begin
                 FileReplaceString(strFilename, '{IdPlaza}', IdPlaza);
             end;
 
-        InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any & pause';
+        InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any';
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="node in" dir=in action=allow program="{commonpf}\nodejs\node.exe" & netsh advfirewall firewall add rule name="node out" dir=out action=allow program="{commonpf}\nodejs\node.exe" & pause');
+        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="node in" dir=in action=allow program="{commonpf}\nodejs\node.exe" & netsh advfirewall firewall add rule name="node out" dir=out action=allow program="{commonpf}\nodejs\node.exe"');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="PM2 in" dir=in action=allow program="{userappdata}\npm\pm2.cmd" & netsh advfirewall firewall add rule name="PM2 out" dir=out action=allow program="{userappdata}\npm\pm2.cmd" & pause');
+        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="PM2 in" dir=in action=allow program="{userappdata}\npm\pm2.cmd" & netsh advfirewall firewall add rule name="PM2 out" dir=out action=allow program="{userappdata}\npm\pm2.cmd"');
         InstallCMDExe := 'cmd.exe'
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="Pista in" dir=in action=allow program="{app}\{#PistaDir}\{#PistaExe}" & netsh advfirewall firewall add rule name="Pista out" dir=out action=allow program="{app}\{#PistaDir}\{#PistaExe}" & pause');
+        InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="Pista in" dir=in action=allow program="{app}\{#PistaDir}\{#PistaExe}" & netsh advfirewall firewall add rule name="Pista out" dir=out action=allow program="{app}\{#PistaDir}\{#PistaExe}"');
         InstallCMDExe := 'cmd.exe'
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pista Service';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}"  & pause');
+        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" & "{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBPistaName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBPistaName} "{app}{#SchemasDir}{#DBPistaBackup}" ');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Pista';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
-        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" &"{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBLogName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBLogName} "{app}{#SchemasDir}{#DBLogBackup}" & pause');
+        InstallCMDParams := ExpandConstant('/c set "PGPASSWORD='+PasswordDB+'" &"{#PostgreBin}createdb.exe" -h localhost -p 5432 -U postgres {#DBLogName} & "{#PostgreBin}pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#DBLogName} "{app}{#SchemasDir}{#DBLogBackup}"');
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos Logger Pista';
         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
 
-       InstallCMDParams := ExpandConstant('/c pm2-startup install & pm2 start "{app}\server\server.js" & pm2 save --force & pause');
+       InstallCMDParams := ExpandConstant('/c pm2-startup install & pm2 start "{app}\server\server.js" & pm2 save --force');
        InstallCMDExe := 'cmd.exe';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
