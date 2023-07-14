@@ -266,7 +266,7 @@ begin
       begin
           I := 3;
 
-          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet 4.6.1';
           ExtractTemporaryFile('{#DotNetExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
 
