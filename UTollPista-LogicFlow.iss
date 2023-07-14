@@ -2,21 +2,48 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 
-#define UTollVisorExeName "UToll Pista.exe"     ; Frontend Executable
-#define UTollVisorDir "\UToll Pista-win32-x64\" ; Frontend App Directory
+
+
+
+; #define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\TestFiles\*"
+#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\TestFiles\"
+
+#define InstallationDir "{commonpf}\"
+#define InstallerName "UToll Pista Installer - LogicFlow"
 
 ; Installer components
-#define PublishFolder "C:\Users\Administrador\Documents\utraffic\InnoSetup\Solicitudes\SolicitudesInstaller\TestFiles\*"
-#define InstallationDir "C:\UTollPista\"
-#define InstallerName "UToll Pista Installer - LogicFlow"
-#define ServerDir "\server\";
-#define ServerFile "\server.js";
-#define npmDir "npm\";
+#define UTollVisorExeName   "UToll Pista.exe"     ; Frontend Executable
+#define UTollVisorDir       "UToll Pista-win32-x64\" ; Frontend App Directory  ;1
+#define ServerDir           "server\";
+#define ServerFile          "\server.js";                                      ;2
 
-#define SchemasDir "\DB-Schemas\"
-#define SchemasTestFile "ut.utoll.tyr.vacio.backup"
-#define SchemasTestDBName "TestDB"
-#define PasswordDB "utraffic"
+#define SchemasDir          "\DB-Schemas\"
+#define DBLogBackup         "ut_utoll_tyr_log_vacia.backup"
+#define DBLogName           "ut_utoll_tyr_log"
+#define DBPistaBackup       "ut_utoll_tyr_vacia.backup"
+#define DBPistaName         "ut_utoll_tyr"
+
+#define CsServiceDir        "Deploy\"                                          ;4
+#define CamarografoDir      "Camarografo\"
+#define CamarografoExe      "UT.UToll.TyR.Pista.Camarografo.exe"
+#define ConectorDir         "Conector\"
+#define ConectorExe         "UT.UToll.TyR.ConectorV2.exe"
+#define ImpresoraDir        "Impresora\"
+#define ImpresoraExe        "UT.UToll.TyR.Pista.Printer.exe"
+#define LectorManualDir     "LectorManual\"
+#define LectorManualExe     "UT.UToll.TyR.Pista.LectorManual.exe"
+#define MantenimientoDir    "Mantenimiento\"
+#define MantenimientoExe    "UT.UToll.TyR.Pista.Mantenimiento.exe"
+#define PanelMensajeriaDir  "PanelMensajeria\"
+#define PanelMensajeriaExe  "UT.UToll.TyR.Pista.PMV.exe"
+#define PistaDir            "Pista\"
+#define PistaExe            "UT.UToll.TyR.Pista.Service.exe"
+#define RFIDDir             "RFID\"
+#define RFIDExe             "UT.UToll.TyR.RfidServer.exe"
+#define UTCDir              "UTC\"
+#define UTCExe              "UT.UToll.TyR.UTC.Server.exe"
+
+
 
 
 ; Installer dependencies
@@ -31,6 +58,7 @@
 #define NIDAQExeName "setup.exe"
 #define NIDAQConfigFile "setupSpecs.ini"
 #define npm "npm.tar"
+#define npmDir "npm\";
 #define DotnetOfflineExeName "NET-Framework-3.5-Offline-Installer-v2.3.exe"
 
 
@@ -38,7 +66,6 @@
 #define WindowsISO "Windows.iso"
 
 ; Installation Environment Variables
-#define RestartEnvVar "RestartInstaller"
 #define Checkpoint_1 "Checkpoint_1"
 #define Checkpoint_2 "Checkpoint_2"
 #define Checkpoint_3 "Checkpoint_3"
@@ -52,14 +79,18 @@
 #define public Dependency_NoExampleSetup
 #define Password "utraffic"
 
-#define MyService "Solicitudes"
+#define PasswordDB "utraffic"
+
+#define PasswordEnvVar "PasswordDB"
+#define IdPistaEnvVar "IdPista"
+#define IdPlazaEnvVar "IdPlaza"
 
 #define AppId "{{4372BD00-1EC0-4F22-9F87-5436E942D980}"
 
 
 [Setup]
 AppId = {#AppId}
-AppName={cm:MyAppName}
+AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={#InstallationDir}{#MyAppName}
@@ -82,6 +113,7 @@ WizardStyle=modern
 
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
+OutputDir=userdocs:utraffic\InnoSetup\PruebaDotnet6
 
 [Code]
 
@@ -91,10 +123,13 @@ var
   OutputProgressWizardPage: TOutputProgressWizardPage;
   OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
   OutputMarqueeProgressWizardPageId: Integer;
-  Restarted: Boolean;
+  PistaSetupPage: TInputQueryWizardPage;
   Checkpoint_1: Boolean;
   Checkpoint_2: Boolean;
   Checkpoint_3: Boolean;
+  PasswordDB: String;
+  IdPista: String;
+  IdPlaza: String;
 
 procedure ExitProcess(uExitCode: Integer);
   external 'ExitProcess@kernel32.dll stdcall';
@@ -114,7 +149,42 @@ begin
     end;
 end;
 
+function Checkpoint(EnvVar: String): Boolean;
+begin
+  if (GetEnv(EnvVar) <> '') then
+    Result := True
+  else
+    Result := False;
+end;
 
+function FileReplaceString(const FileName, SearchString, ReplaceString: string):boolean;
+var
+  MyFile : TStrings;
+  MyText : string;
+begin
+  MyFile := TStringList.Create;
+
+  try
+    result := true;
+
+    try
+      MyFile.LoadFromFile(FileName);
+      MyText := MyFile.Text;
+
+      { Only save if text has been changed. }
+      if StringChangeEx(MyText, SearchString, ReplaceString, True) > 0 then
+      begin;
+        MyFile.Text := MyText;
+        MyFile.SaveToFile(FileName);
+      end;
+    except
+      result := false;
+    end;
+  finally
+    MyFile.Free;
+  end;
+end;
+    
   
 procedure InitializeWizard();
 var
@@ -122,42 +192,28 @@ var
 begin
 
 // Verificar que Windows ISO est� installado   
-  if not FileExists(ExpandConstant('{src}\{#WindowsISO}')) then
-  begin
-    MsgBox(ExpandConstant('Windows.iso was not detected in: "{src}"'), mbError, MB_OK);
-    ExitProcess(1);
-  end;
+//   if not FileExists(ExpandConstant('{src}\{#WindowsISO}')) then
+//   begin
+//     MsgBox(ExpandConstant('Windows.iso was not detected in: "{src}"'), mbError, MB_OK);
+//     ExitProcess(1);
+//   end;
+    PistaSetupPage := CreateInputQueryPage(wpPassword, 
+  'Información de Configuración', 'Contraseña Base de datos', 
+  'Especifique la contraseña, pulse click en Siguiente.');
+  PistaSetupPage.Add('Password Base de Datos', True);
+  PistaSetupPage.Values[0] := 'utraffic'; 
+  PistaSetupPage.Add('Id Pista', False);
+  PistaSetupPage.Values[1] := '1'; 
+  PistaSetupPage.Add('Id Plaza', False);
+  PistaSetupPage.Values[2] := '1';
 
-  if (GetEnv('{#RestartEnvVar}') <> '') then
-    begin
-      Restarted := true
-    end 
-    else begin
-      Restarted  := false;
-    end;
-  if (GetEnv('{#Checkpoint_1}') <> '') then
-    begin
-      Checkpoint_1 := true
-    end 
-    else begin
-      Checkpoint_1  := false;
-    end;
-  if (GetEnv('{#Checkpoint_2}') <> '') then
-    begin
-      Checkpoint_2 := true
-    end 
-    else begin
-      Checkpoint_2  := false;
-    end;
-  if (GetEnv('{#Checkpoint_3}') <> '') then
-    begin
-      Checkpoint_3 := true
-    end 
-    else begin
-      Checkpoint_3  := false;
-    end;
-
-
+  Checkpoint_1 := Checkpoint('{#Checkpoint_1}');
+  Checkpoint_2 := Checkpoint('{#Checkpoint_2}');
+  Checkpoint_3 := Checkpoint('{#Checkpoint_3}');
+  PasswordDB := GetEnv('{#PasswordEnvVar}');
+  IdPista := GetEnv('{#IdPistaEnvVar}');
+  IdPlaza := GetEnv('{#IdPlazaEnvVar}');
+  MsgBox(PasswordDB+ ' - ' + IdPista + ' - ' + IdPlaza, mbInformation, MB_OK);
 
 
   WizardForm.LicenseAcceptedRadio.Checked := True;
@@ -181,10 +237,20 @@ begin
     (PageID = wpSelectDir) or
     (PageID = wpSelectComponents) or
     (PageID = wpSelectProgramGroup) or
-    (PageID = wpSelectTasks) or
-    (PageID = wpReady)
+    (PageID = wpSelectTasks) 
+    
+//     (PageID = wpReady)
   );
 end;
+
+procedure CurPageChanged(CurPageId: Integer);
+begin
+  if CurPageId = wpReady then 
+    begin
+      WizardForm.BackButton.Hide
+    end;
+end;
+
 
 function NextButtonClick(CurPageId: Integer): Boolean;
 var 
@@ -192,6 +258,7 @@ var
   InstallCMDParams: String;
   InstallCMDExe: String;
   ResultCode: Integer;
+  strFilename: string;
 begin
   if CurPageId = OutputMarqueeProgressWizardPageId then 
     begin
@@ -199,32 +266,31 @@ begin
       Max := 10;
       I := 1;
       OutputProgressWizardPage.SetProgress(I, Max);
-      OutputProgressWizardPage.Show;
-      
+      OutputProgressWizardPage.Show;    
       if not Checkpoint_1 then
       begin
           I := 3;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet6.0';
 //           ExtractTemporaryFile('{#DotNetExeName}');
-          MsgBox('Extracting DotNet6.0', mbInformation, MB_OK);
+//           MsgBox('Extracting DotNet6.0', mbInformation, MB_OK);
           OutputProgressWizardPage.SetProgress(I, Max);
 
           I := 5;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PostgreSQL';
 //           ExtractTemporaryFile('{#PostgreExeName}');
-          MsgBox('Extracting PostgreSQL', mbInformation, MB_OK);
+//           MsgBox('Extracting PostgreSQL', mbInformation, MB_OK);
           OutputProgressWizardPage.SetProgress(I, Max);
 
           I := 6;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NodeJs';
 //           ExtractTemporaryFile('{#NodeExeName}');
-          MsgBox('Extracting NodeJs', mbInformation, MB_OK);
+//           MsgBox('Extracting NodeJs', mbInformation, MB_OK);
           OutputProgressWizardPage.SetProgress(I, Max);
 
           I := 7;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PM2';
-//           ExtractTemporaryFile('{#pm2}');
-          MsgBox('Extracting PM2', mbInformation, MB_OK);
+//           ExtractTemporaryFile('{#npm}');
+//           MsgBox('Extracting PM2', mbInformation, MB_OK);
           OutputProgressWizardPage.SetProgress(I, Max);
       end; 
       if not Checkpoint_2 then
@@ -232,7 +298,7 @@ begin
           I := 8;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting Dotnet3.5 Offline Installer';
 //           ExtractTemporaryFile('{#DotnetOfflineExeName}');
-          MsgBox('Extracting Dotnet 3.5 offline installer', mbInformation, MB_OK);
+//           MsgBox('Extracting Dotnet 3.5 offline installer', mbInformation, MB_OK);
           OutputProgressWizardPage.SetProgress(I, Max);
       end; 
       if not Checkpoint_3 then
@@ -240,17 +306,9 @@ begin
           I := 10;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting NIDAQ';
 //           ExtractTemporaryFile('{#NIDAQ}');
-          MsgBox('Extracting NIDAQ', mbInformation, MB_OK);
+//           MsgBox('Extracting NIDAQ', mbInformation, MB_OK);
           OutputProgressWizardPage.SetProgress(I, Max);
       end  
-          
-
-
-
-
-
-
-      
       else begin
 
       end;
@@ -266,50 +324,40 @@ begin
       OutputMarqueeProgressWizardPage.Animate;
       if not Checkpoint_1 then
       begin
-          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "utraffic" --servicename "postgreSQL" --servicepassword "utraffic" --serverport 5432  --disable-components pgAdmin,stackbuilder';
+            InstallDependency('cmd.exe', Format('/c setx {#PasswordEnvVar} "%s" /M & setx {#IdPistaEnvVar} "%s" /M & setx {#IdPlazaEnvVar} "%s" /M', [PistaSetupPage.Values[0], PistaSetupPage.Values[1], PistaSetupPage.Values[2]])); 
+            MsgBox('--unattendedmodeui minimal --mode unattended --superpassword "'+PistaSetupPage.Values[0]+'" --servicename "postgreSQL" --servicepassword "'+PistaSetupPage.Values[0]+'" --serverport 5432  --disable-components pgAdmin,stackbuilder', mbInformation, MB_OK);
+          InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "'+PistaSetupPage.Values[0]+'" --servicename "postgreSQL" --servicepassword "'+PistaSetupPage.Values[0]+'" --serverport 5432  --disable-components pgAdmin,stackbuilder';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Postgre6.0';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Instalado: de PostgreSQL', mbInformation, MB_OK);
+//           MsgBox('Instalado: de PostgreSQL', mbInformation, MB_OK);
 
-          InstallCMDParams := '/c netsh advfirewall set allprofiles state on & netsh advfirewall firewall add rule name="Puerto BBDD" dir=in action=allow enable=yes protocol=TCP localport=5432 profile=any & pause';
-          InstallCMDExe := 'cmd.exe';
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Add Firewall exception: PostgreSQL', mbInformation, MB_OK);
+//           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+//           MsgBox('Add Firewall exception: PostgreSQL', mbInformation, MB_OK);
 
           InstallCMDParams := '/install /passive /norestart';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet 4.6.1';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Instalado: de Dotnet 4.6.1', mbInformation, MB_OK);
-
+//           MsgBox('Instalado: de Dotnet 4.6.1', mbInformation, MB_OK);
 
           InstallCMDParams := '/i '+ ExpandConstant('{tmp}\{#NodeExeName}')+' /passive';
           InstallCMDExe := 'msiexec.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NodeJs';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Instalado: de NodeJs', mbInformation, MB_OK);
+//           MsgBox('Instalado: de NodeJs', mbInformation, MB_OK);
 
-          InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="node in" dir=in action=allow program="{commonpf}\nodejs\node.exe" & netsh advfirewall firewall add rule name="node out" dir=out action=allow program="{commonpf}\nodejs\node.exe" & pause');
-          InstallCMDExe := 'cmd.exe';
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule POSTGRESQL';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Add Firewall exception: PostgreSQL', mbInformation, MB_OK);
-
-
+//           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+//           MsgBox('Add Firewall exception: PostgreSQL', mbInformation, MB_OK);
           
           InstallCMDParams := ExpandConstant('/c tar -xf {tmp}\{#npm} -C {tmp} & xcopy /E /Y /I {tmp}\{#npmDir} {userappdata}\npm')
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Instalado: Pm2', mbInformation, MB_OK);
+//           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+//           MsgBox('Instalado: Pm2', mbInformation, MB_OK);
 
-          InstallCMDParams := ExpandConstant('/c netsh advfirewall firewall add rule name="PM2 in" dir=in action=allow program="{userappdata}\npm\pm2.cmd" & netsh advfirewall firewall add rule name="PM2 out" dir=out action=allow program="{userappdata}\npm\pm2.cmd" & pause');
-          InstallCMDExe := 'cmd.exe'
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Adding firewall rule Pm2';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Add Firewall Exception: Pm2', mbInformation, MB_OK);
+//           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+//           MsgBox('Add Firewall Exception: Pm2', mbInformation, MB_OK);
 
           InstallCMDParams := '/c setx {#Checkpoint_1} "True" /M';
           InstallCMDExe := 'cmd.exe'; 
@@ -321,20 +369,20 @@ begin
           InstallCMDExe := 'cmd.exe '
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Testing';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Windows.iso Montado', mbInformation, MB_OK);
+//           MsgBox('Windows.iso Montado', mbInformation, MB_OK);
 
           InstallCMDParams := ExpandConstant('/c {tmp}\{#DotnetOfflineExeName}');
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet Offline';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Se abre Dotnet 3.5 offline installer (operaci�n manual).', mbInformation, MB_OK);
+//           MsgBox('Se abre Dotnet 3.5 offline installer (operaci�n manual).', mbInformation, MB_OK);
           
 
           if MsgBox('Se instal� correctamente Dotnet3.5', mbConfirmation, MB_YESNO) = IDNO then
           begin
           ExitProcess(1);
           end;
-          MsgBox('Instalado: dotnet 3.5 offline', mbInformation, MB_OK);
+//           MsgBox('Instalado: dotnet 3.5 offline', mbInformation, MB_OK);
 
           InstallCMDParams := '/c setx {#Checkpoint_2} "True" /M';
           InstallCMDExe := 'cmd.exe'; 
@@ -346,12 +394,13 @@ begin
           InstallCMDExe := 'cmd.exe'; 
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando NI-DAQ';
 //           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Instalado NIDAQ', mbInformation, MB_OK);
+//           MsgBox('Instalado NIDAQ', mbInformation, MB_OK);
 
 
-            InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M & shutdown /r /t 10 ';
+//             InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M & shutdown /r /t 10 ';
+            InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M';
             InstallCMDExe := 'cmd.exe'; 
-            MsgBox('Al presionar OK el sistema se reiniciar� en 10 segundos', mbInformation, MB_OK);
+//             MsgBox('Al presionar OK el sistema se reiniciar� en 10 segundos', mbInformation, MB_OK);
             Result := InstallDependency(InstallCMDExe, InstallCMDParams);
             OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Reiniciando el sistema';
 
@@ -366,6 +415,8 @@ begin
           begin
           ExitProcess(1);
           end;
+
+          
           
         end;   
      finally
@@ -377,23 +428,39 @@ begin
    begin
      try
        OutputMarqueeProgressWizardPage.Show;
-       OutputMarqueeProgressWizardPage.Animate;
+       OutputMarqueeProgressWizardPage.Animate;  
+ 
+          //Configuracion Servicio
+            
+            strFilename := ExpandConstant('{app}\{#PistaDir}UT.UToll.TyR.Pista.Service.exe.config');
+            MsgBox(strFilename, mbInformation, MB_OK);
+            if FileExists(strFilename) then
+            begin
+                FileReplaceString(strFilename, '{PasswordDB}', PasswordDB);
+            end;
 
-        InstallCMDParams := '/c set "PGPASSWORD={#PasswordDB}" &"C:\Program Files\PostgreSQL\15\bin\createdb.exe" -h localhost -p 5432 -U postgres {#SchemasTestDBName} & "C:\Program Files\PostgreSQL\15\bin\pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#SchemasTestDBName} ' + ExpandConstant('"{app}{#SchemasDir}{#SchemasTestFile}"') + ' & pause';
+            strFilename := ExpandConstant('{app}\{#PistaDir}config.json');
+            if FileExists(strFilename) then
+            begin
+                FileReplaceString(strFilename, '{IdPista}', IdPista);
+                FileReplaceString(strFilename, '{IdPlaza}', IdPlaza);
+            end;
+
+//         InstallCMDParams := '/c set "PGPASSWORD={#PasswordDB}" &"C:\Program Files\PostgreSQL\15\bin\createdb.exe" -h localhost -p 5432 -U postgres {#SchemasTestDBName} & "C:\Program Files\PostgreSQL\15\bin\pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d {#SchemasTestDBName} ' + ExpandConstant('"{app}{#SchemasDir}{#SchemasTestFile}"') + ' & pause';
+           MsgBox('/c set "PGPASSWORD='+PasswordDB+'" &"C:\Program Files\PostgreSQL\15\bin\createdb.exe" -h localhost -p 5432 -U postgres  & "C:\Program Files\PostgreSQL\15\bin\pg_restore.exe" -Fc -v -h localhost -p 5432 -U postgres -w -d  ' + ExpandConstant('"{app}{#SchemasDir}"') + ' & pause',mbInformation,MB_OK);
         InstallCMDExe := 'cmd.exe';
         OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Inicializando Base de datos';
 //         Result := InstallDependency(InstallCMDExe, InstallCMDParams)
-        MsgBox('Backup restored from .backup', mbInformation, MB_OK);       
-
-       InstallCMDParams := '/c pm2-startup install & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force ';
+//         MsgBox('Backup restored from .backup', mbInformation, MB_OK);       
+//        MsgBox(ExpandConstant('/c pm2-startup install & pm2 start "{#InstallationDir}{#MyAppName}\server\server.js" & pm2 save --force & pause '), mbInformation, MB_OK);
+       InstallCMDParams := ExpandConstant('/c pm2-startup install & pm2 start "{app}\server\server.js" & pm2 save --force & pause ');
        InstallCMDExe := 'cmd.exe';
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
 //        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
        MsgBox('Instalado: Servicio PM2', mbInformation, MB_OK);
-
-       InstallCMDParams := '/c setx {#RestartEnvVar} "" /M & setx {#Checkpoint_1} "" /M & setx {#Checkpoint_2} "" /M & setx {#Checkpoint_3} "" /M';
+       InstallCMDParams := '/c  setx /M {#Checkpoint_1} ""  & setx /M {#Checkpoint_2} ""  & setx /M {#Checkpoint_3} "" ';
        InstallCMDExe := 'cmd.exe';
-       Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+//        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
      finally
        OutputMarqueeProgressWizardPage.Hide;
      end;
@@ -414,21 +481,94 @@ Eng.WelcomeMessage="Bienvenido al asistente de instalaci�n de SolicitudesApp"
 Esp.MyAppName=UToll Pista
 Esp.WelcomeMessage="Welcome to the SolicitudesApp instalation assistant"
 
+[Types]
+Name: "full";     Description: "Full install";
+; Name: "compact";  Description: "Compact installation"
+; Name: "custom";   Description: "Custom installation"; Flags: iscustom
+
+[Components]
+Name: UTollVisor;               Description: "UToll Pista Visor (Frontend)";    types: full; Flags: fixed;
+
+Name: Services;                 Description: "Pista Services";                  types: full; Flags: fixed;     
+Name: Services\Camarografo;     Description: "Camarógrafo";                     types: full; Flags: fixed; 
+Name: Services\Conector;        Description: "Conector";                        types: full; Flags: fixed; 
+Name: Services\Impresora;       Description: "Impresora";                       types: full; Flags: fixed; 
+Name: Services\LectorManual;    Description: "Lector Manual";                   types: full; Flags: fixed; 
+Name: Services\Mantenimiento;   Description: "Mantenimiento";                   types: full; Flags: fixed; 
+Name: Services\PanelMensajeria; Description: "Panel de Mensajería";             types: full; Flags: fixed; 
+Name: Services\Pista;           Description: "Pista";                           types: full; Flags: fixed;     
+Name: Services\RFID;            Description: "RFID";                            types: full; Flags: fixed;     
+Name: Services\UTC;             Description: "UTraffic Controller (UTC)";       types: full; Flags: fixed;
+
+Name: Server;                   Description: "Server Pista";                    types: full; Flags: fixed;
+
+Name: Database;                 Description: "Database Schemas";                types: full; Flags: fixed; 
+Name: Database\Pista;           Description: "Pista Database";                  types: full; Flags: fixed; 
+Name: Database\PistaLog;        Description: "Pista Log Database";              types: full; Flags: fixed; 
+
+
+
+          
+
 [Files]
-Source: {#PublishFolder}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "conf.xml"
-Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
-; Dependencies Temporary Files
-; Source: {#DependenciesDir}{#PostgreExeName};  Flags: dontcopy noencryption
-; Source: {#DependenciesDir}{#DotnetExeName};   Flags: dontcopy noencryption
-; Source: {#DependenciesDir}{#NodeExeName};     Flags: dontcopy noencryption
-; Source: {#DependenciesDir}{#pm2}; Flags: dontcopy noencryption
-; Source: {#DependenciesDir}{#NIDAQ}; Flags: dontcopy noencryption
-; Source: {#DependenciesDir}{#DotnetOfflineExeName}; Flags: dontcopy noencryption
+Source: {#PublishFolder}{#UTollVisorDir}*;                      DestDir: "{app}\{#UTollVisorDir}";      Flags: ignoreversion recursesubdirs createallsubdirs; Components: UTollVisor
+Source: {#PublishFolder}{#CsServiceDir}{#CamarografoDir}*;      DestDir: "{app}\{#CamarografoDir}";     Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\Camarografo
+Source: {#PublishFolder}{#CsServiceDir}{#ConectorDir}*;         DestDir: "{app}\{#ConectorDir}";        Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\Conector
+Source: {#PublishFolder}{#CsServiceDir}{#ImpresoraDir}*;        DestDir: "{app}\{#ImpresoraDir}";       Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\Impresora
+Source: {#PublishFolder}{#CsServiceDir}{#LectorManualDir}*;     DestDir: "{app}\{#LectorManualDir}";    Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\LectorManual
+Source: {#PublishFolder}{#CsServiceDir}{#MantenimientoDir}*;    DestDir: "{app}\{#MantenimientoDir}";   Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\Mantenimiento
+Source: {#PublishFolder}{#CsServiceDir}{#PanelMensajeriaDir}*;  DestDir: "{app}\{#PanelMensajeriaDir}"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\PanelMensajeria
+Source: {#PublishFolder}{#CsServiceDir}{#PistaDir}*;            DestDir: "{app}\{#PistaDir}";           Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\Pista
+Source: {#PublishFolder}{#CsServiceDir}{#RFIDDir}*;             DestDir: "{app}\{#RFIDDir}";            Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\RFID
+Source: {#PublishFolder}{#CsServiceDir}{#UTCDir}*;              DestDir: "{app}\{#UTCDir}";             Flags: ignoreversion recursesubdirs createallsubdirs; Components: Services\UTC
+Source: {#PublishFolder}{#ServerDir}*;                          DestDir: "{app}\{#ServerDir}";          Flags: ignoreversion recursesubdirs createallsubdirs; Components: Server
+Source: {#PublishFolder}{#SchemasDir}{#DBLogBackup};            DestDir: "{app}\{#SchemasDir}";         Flags: ignoreversion recursesubdirs createallsubdirs; Components: Database\Pista
+Source: {#PublishFolder}{#SchemasDir}{#DBPistaBackup};          DestDir: "{app}\{#SchemasDir}";         Flags: ignoreversion recursesubdirs createallsubdirs; Components: DataBase\PistaLog
+
+
+
 
 [Icons]
 Name: "{group}\{cm:MyAppName}";         Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commondesktop}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
 Name: "{commonstartup}\{cm:MyAppName}"; Filename: "{app}\{#UTollVisorDir}\{#UTollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
+
+; [Run]
+; nstalacion Programas
+; Filename: "{app}\{#CsServiceDir}\{#CamarografoDir}\{#CamarografoExe}";          Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Camar�grafo";                                  
+; Filename: "{app}\{#CsServiceDir}\{#ConectorDir}\{#ConectorExe}";                Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando ConectorV2";                           
+; Filename: "{app}\{#CsServiceDir}\{#ImpresoraDir}\{#ImpresoraExe}";              Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Printer";                           
+; Filename: "{app}\{#CsServiceDir}\{#LectorManualDir}\{#LectorManualExe}";        Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Lector Manual";                           
+; Filename: "{app}\{#CsServiceDir}\{#MantenimientoDir}\{#MantenimientoExe}";      Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Mantenimiento";                           
+; Filename: "{app}\{#CsServiceDir}\{#PanelMensajeriaDir}\{#PanelMensajeriaExe}";  Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Panel de Mensajer�a";                          
+; Filename: "{app}\{#CsServiceDir}\{#PistaDir}\{#PistaExe}";                      Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando Pista";                 Components: Pista;                      
+; Filename: "{app}\{#CsServiceDir}\{#RFIDDir}\{#RFIDExe}";                        Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando RFID Server";           Components: RFID;                             
+; Filename: "{app}\{#CsServiceDir}\{#UTCDir}\{#UTCExe}";                          Parameters: "install"; Flags: runascurrentuser runhidden; Description: "Instalaci�n servicios C#"; StatusMsg: "Instalando UTC Server";            Components: UTC;                             
+
+
+; [UninstallRun]
+; Stop Services
+; Filename: "{app}\{#CsServiceDir}\{#CamarografoDir}\{#CamarografoExe}";          Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#ConectorDir}\{#ConectorExe}";                Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#ImpresoraDir}\{#ImpresoraExe}";              Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#LectorManualDir}\{#LectorManualExe}";        Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#MantenimientoDir}\{#MantenimientoExe}";      Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#PanelMensajeriaDir}\{#PanelMensajeriaExe}";  Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#PistaDir}\{#PistaExe}";                      Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#RFIDDir}\{#RFIDExe}";                        Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#UTCDir}\{#UTCExe}";                          Parameters: "stop"; Flags: runhidden; RunOnceId: "DelService"
+
+; Uninstall Services
+; Filename: "{app}\{#CsServiceDir}\{#CamarografoDir}\{#CamarografoExe}";          Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#ConectorDir}\{#ConectorExe}";                Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#ImpresoraDir}\{#ImpresoraExe}";              Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#LectorManualDir}\{#LectorManualExe}";        Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#MantenimientoDir}\{#MantenimientoExe}";      Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#PanelMensajeriaDir}\{#PanelMensajeriaExe}";  Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#PistaDir}\{#PistaExe}";                      Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#RFIDDir}\{#RFIDExe}";                        Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+; Filename: "{app}\{#CsServiceDir}\{#UTCDir}\{#UTCExe}";                          Parameters: "uninstall"; Flags: runhidden; RunOnceId: "DelService"
+
 
 
 
