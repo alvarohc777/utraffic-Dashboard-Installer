@@ -1,1 +1,1 @@
-Important information that will be shown afther the installation.
+﻿Important information that will be shown afther the installation.

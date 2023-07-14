@@ -1,2 +1,2 @@
-Esta es información Importante.
+﻿Esta es información Importante.
 Se mostrará antes de la instalación.
