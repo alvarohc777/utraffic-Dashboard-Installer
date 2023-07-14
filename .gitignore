@@ -9,3 +9,4 @@ Dependencies/VC_redist.x64.exe
 Dependencies/VC_redist.x86.exe
 Dependencies/npm/*
 Publish/*
+Dependencies/*
