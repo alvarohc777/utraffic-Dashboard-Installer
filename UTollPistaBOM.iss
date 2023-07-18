@@ -339,8 +339,7 @@ begin
           InstallCMDExe := 'cmd.exe'
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Pm2';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-          MsgBox('Instalado: Pm2', mbInformation, MB_OK);
-
+          
           InstallCMDParams := '/c setx {#Checkpoint_1} "True" /M';
           InstallCMDExe := 'cmd.exe'; 
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
