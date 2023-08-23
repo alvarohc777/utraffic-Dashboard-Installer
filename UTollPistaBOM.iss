@@ -1,4 +1,4 @@
-#define MyAppName "UToll Pista"
+﻿#define MyAppName "UToll Pista"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 
@@ -58,16 +58,11 @@
 #define NIDAQConfigFile       "customInstallation.ini"
 #define npm "npm.tar"
 #define npmDir "npm\";
-#define DotnetOfflineExeName  "NET-Framework-3.5-Offline-Installer-v2.3.exe"
 
-
-; Files Packed with Installer
-#define WindowsISO "Windows.iso"
 
 ; Installation Environment Variables
 #define Checkpoint_1 "Checkpoint_1"
-#define Checkpoint_2 "Checkpoint_2"
-#define Checkpoint_3 "Checkpoint_3"
+#define checkpoint_2 "checkpoint_2"
 
 ; Auxiliary Files (Icons, Licenses, text files)
 #define AuxDataDir "AuxFiles\"
@@ -126,8 +121,7 @@ var
   OutputMarqueeProgressWizardPageId: Integer;
   PistaSetupPage: TInputQueryWizardPage;
   Checkpoint_1: Boolean;
-  Checkpoint_2: Boolean;
-  Checkpoint_3: Boolean;
+  checkpoint_2: Boolean;
   PasswordDB: String;
   IdPista: String;
   IdPlaza: String;
@@ -199,16 +193,10 @@ var
   AfterId: Integer;
 begin
 
-  // Verificar que Windows ISO est� installado   
-  if not FileExists(ExpandConstant('{src}\{#WindowsISO}')) then
-  begin
-    MsgBox(ExpandConstant('Windows.iso was not detected in: "{src}"'), mbError, MB_OK);
-    ExitProcess(1);
-  end; 
-    PistaSetupPage := CreateInputQueryPage(wpPassword, 
+  PistaSetupPage := CreateInputQueryPage(wpPassword, 
   'Información de Configuración', 'Contraseña Base de datos', 
   'Especifique la contraseña, pulse click en Siguiente.');
-  PistaSetupPage.Add('Password Base de Datos', True);
+  PistaSetupPage.Add('Password Base de Datos', False);
   PistaSetupPage.Values[0] := 'utraffic'; 
   PistaSetupPage.Add('Id Pista', False);
   PistaSetupPage.Values[1] := '1'; 
@@ -217,14 +205,13 @@ begin
 
   // Verificar los checkpoints
   Checkpoint_1 := Checkpoint('{#Checkpoint_1}');
-  Checkpoint_2 := Checkpoint('{#Checkpoint_2}');
-  Checkpoint_3 := Checkpoint('{#Checkpoint_3}');
+  checkpoint_2 := Checkpoint('{#checkpoint_2}');
   PasswordDB := GetEnv('{#PasswordEnvVar}');
   IdPista := GetEnv('{#IdPistaEnvVar}');
   IdPlaza := GetEnv('{#IdPlazaEnvVar}');
 
-  WizardForm.LicenseAcceptedRadio.Checked := True;
-  WizardForm.PasswordEdit.Text := '{#Password}';
+//   WizardForm.LicenseAcceptedRadio.Checked := True;
+//   WizardForm.PasswordEdit.Text := '{#Password}';
   WizardForm.WelcomeLabel1.Caption := 'Bienvenido al asistente de instalación de UToll Pista';
   WizardForm.WelcomeLabel2.Caption := 'Este programa instalará UToll Pista en su versión 1.0.0 en su sistema.' #13#10 #13#10 'Se recomienda cerrar todas las demás aplicaciones antes de continuar.' #13#10 #13#10 'Haga click en Siguiente para continuar o en Cancelar para salir de la instalación.'
   OutputProgressWizardPage := CreateOutputProgressPage('Extracting Dependencies', 'The following programs will be extracted:' #13#10 'VIsual C++ Redistributablex64, Visual C++ Redistributablex86, NIDAQ, Dotnet, PostgreSQL, NodeJs, NI-DAQ');
@@ -235,7 +222,7 @@ end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  Result := (Checkpoint_1 or Checkpoint_2 or Checkpoint_3) and (
+  Result := (Checkpoint_1 or checkpoint_2) and (
     (PageID = wpWelcome) or
     (PageID = wpLicense) or
     (PageID = wpPassword) or
@@ -270,6 +257,12 @@ begin
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet 4.6.1';
           ExtractTemporaryFile('{#DotNetExeName}');
           OutputProgressWizardPage.SetProgress(I, Max);
+          
+          I := 3;
+
+          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet 5.0.0';
+          ExtractTemporaryFile('{#Dotnet5ExeName}');
+          OutputProgressWizardPage.SetProgress(I, Max);
 
           I := 5;
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting PostgreSQL';
@@ -286,14 +279,7 @@ begin
           ExtractTemporaryFile('{#npm}');
           OutputProgressWizardPage.SetProgress(I, Max);
       end;
-      if not Checkpoint_2 then
-      begin
-          I := 8;
-          OutputProgressWizardPage.Msg2Label.Caption := 'Extracting Dotnet3.5 Offline Installer';
-          ExtractTemporaryFile('{#DotnetOfflineExeName}');
-          OutputProgressWizardPage.SetProgress(I, Max);
-      end;
-      if not Checkpoint_3 then
+      if not checkpoint_2 then
       begin    
 
           I := 10;
@@ -318,8 +304,6 @@ begin
       if not Checkpoint_1 then
         begin
           InstallDependency('cmd.exe', Format('/c setx {#PasswordEnvVar} "%s" /M & setx {#IdPistaEnvVar} "%s" /M & setx {#IdPlazaEnvVar} "%s" /M', [PistaSetupPage.Values[0], PistaSetupPage.Values[1], PistaSetupPage.Values[2]])); 
-
-          
           
           InstallCMDParams := '--unattendedmodeui minimal --mode unattended --superpassword "'+PistaSetupPage.Values[0]+'" --servicename "postgreSQL" --servicepassword "'+PistaSetupPage.Values[0]+'" --serverport 5432  --disable-components pgAdmin,stackbuilder';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#PostgreExeName}';
@@ -350,29 +334,8 @@ begin
           InstallCMDExe := 'cmd.exe'; 
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
         end;
-      if not Checkpoint_2 then
-        begin
-          InstallCMDParams := ExpandConstant('/c powershell.exe /c Mount-DiskImage -ImagePath {src}\{#WindowsISO}');
-          InstallCMDExe := 'cmd.exe '
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Testing';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-          InstallCMDParams := ExpandConstant('/c {tmp}\{#DotnetOfflineExeName}');
-          InstallCMDExe := 'cmd.exe'
-          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet Offline';
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-
-          if MsgBox('Se instaló correctamente Dotnet3.5', mbConfirmation, MB_YESNO) = IDNO then
-          begin
-            ExitProcess(1);
-          end;
-
-          InstallCMDParams := '/c setx {#Checkpoint_2} "True" /M';
-          InstallCMDExe := 'cmd.exe'; 
-          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
-        end;
-
-      if not Checkpoint_3 then
+      if not checkpoint_2 then
         begin
 
           InstallCMDParams := ExpandConstant('/c echo "Decompressing NIDAQ" & tar -xf {tmp}\{#NIDAQ} -C {tmp} & {tmp}\{#NIDAQDir}{#NIDAQExeName} {tmp}\{#NIDAQDir}{#NIDAQConfigFile} /qb /AcceptLicenses yes /r ');
@@ -385,7 +348,7 @@ begin
               ExitProcess(1);
             end;
 
-            InstallCMDParams := '/c setx {#Checkpoint_3} "True" /M & shutdown /r /t 10 ';
+            InstallCMDParams := '/c setx {#checkpoint_2} "True" /M & shutdown /r /t 10 ';
             InstallCMDExe := 'cmd.exe'; 
             MsgBox('Al presionar OK el sistema se reiniciará en 10 segundos', mbInformation, MB_OK);
             Result := InstallDependency(InstallCMDExe, InstallCMDParams);
@@ -472,7 +435,7 @@ begin
        OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando servicio en PM2';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
-       InstallCMDParams := '/c setx {#Checkpoint_1} "" /M & setx {#Checkpoint_2} "" /M & setx {#Checkpoint_3} "" /M';
+       InstallCMDParams := '/c setx {#Checkpoint_1} "" /M  & setx {#checkpoint_2} "" /M';
        InstallCMDExe := 'cmd.exe';
        Result := InstallDependency(InstallCMDExe, InstallCMDParams);
      finally
@@ -549,7 +512,6 @@ Source: {#DependenciesDir}{#Dotnet5ExeName};         Flags: dontcopy noencryptio
 Source: {#DependenciesDir}{#NodeExeName};           Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#npm};                   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NIDAQ};                 Flags: dontcopy noencryption
-Source: {#DependenciesDir}{#DotnetOfflineExeName};  Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{cm:MyAppName}";         Filename: "{app}\{#UTollVisorDir}\{#UtollVisorExeName}"; IconFilename: "{app}\{#AppIcon}"
