@@ -1,4 +1,4 @@
-﻿#define MyAppName "UToll Pista"
+#define MyAppName "UToll Pista"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "U Traffic"
 
@@ -49,6 +49,7 @@
 #define VCRedisX64ExeName     "VC_redist.x64.exe"
 #define VCRedisX86ExeName     "VC_redist.x86.exe"
 #define DotnetExeName         "ndp461-devpack-kb3105179-enu.exe"
+#define Dotnet5ExeName        "dotnet-sdk-5.0.408-win-x64.exe"
 #define PostgreExeName        "postgresql-15.3-1-windows-x64.exe"
 #define NodeExeName           "node-v18.16.1-x64.msi"
 #define NIDAQ                 "NIDAQ.tar"
@@ -264,7 +265,7 @@ begin
       OutputProgressWizardPage.Show;
       if not Checkpoint_1 then
       begin
-          I := 3;
+          I := 2;
 
           OutputProgressWizardPage.Msg2Label.Caption := 'Extracting DotNet 4.6.1';
           ExtractTemporaryFile('{#DotNetExeName}');
@@ -328,6 +329,11 @@ begin
           InstallCMDParams := '/install /passive /norestart';
           InstallCMDExe := ExpandConstant('{tmp}\')+'{#DotNetExeName}';
           OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet 4.6.1';
+          Result := InstallDependency(InstallCMDExe, InstallCMDParams);
+
+          InstallCMDParams := '/install /passive /norestart';
+          InstallCMDExe := ExpandConstant('{tmp}\')+'{#Dotnet5ExeName}';
+          OutputMarqueeProgressWizardPage.Msg2Label.Caption := 'Instalando Dotnet 5.0.0';
           Result := InstallDependency(InstallCMDExe, InstallCMDParams);
 
           InstallCMDParams := '/i '+ ExpandConstant('{tmp}\{#NodeExeName}')+' /passive';
@@ -539,6 +545,7 @@ Source: {#AuxDataDir}{#AppIcon}; DestName:{#AppIcon}; DestDir: "{app}"
 ; Dependencies Temporary Files
 Source: {#DependenciesDir}{#PostgreExeName};        Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#DotnetExeName};         Flags: dontcopy noencryption
+Source: {#DependenciesDir}{#Dotnet5ExeName};         Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NodeExeName};           Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#npm};                   Flags: dontcopy noencryption
 Source: {#DependenciesDir}{#NIDAQ};                 Flags: dontcopy noencryption
